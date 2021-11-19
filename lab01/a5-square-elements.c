@@ -14,7 +14,11 @@ redirecionamento de stdin; por exemplo:
 ./a5-square-elements.exe < test_vector.txt
 
 A makefile incluída permite a execução de um teste com o vetor contendo
-os inteiros de -3 a 9996 chamando make test.
+os inteiros de -3 a 9996 executando make test.
+
+Obs: Executei alguns testes manuais variando NTHREADS, porém com NELEMS
+reduzido, para facilitar a entrada manual de valores e a verificação das
+saídas.
 */
 
 #include <stdio.h>
@@ -77,6 +81,10 @@ int main()
 
     // Lendo o vetor de entrada:
     int input_vector[NELEMS];
+    int vector_copy[NELEMS];
+    // (Era pedido que testássemos a saída, então estou guardando uma
+    // cópia para comparar com a saída de um procedimento single-threaded.)
+
     int v_pos = 0;  // para iterar sobre o vetor na inserção
 
     char* input_line = NULL;
@@ -96,6 +104,7 @@ int main()
    
 
         input_vector[v_pos] = new_elem;
+        vector_copy[v_pos] = new_elem;
         v_pos++;
 
 		chars_read = getline(&input_line, &len, stdin);
@@ -158,7 +167,23 @@ int main()
 
     printf("\n");
 
+    /* Comparando a saída com a de um procedimento sequencial,
+    com apenas uma thread, para teste: */
+
+    for (int i=0; i<NELEMS; i++)
+    {
+        vector_copy[i] *= vector_copy[i];
+
+        if (vector_copy[i] != input_vector[i])
+        {
+            printf("Erro na entrada %d", i);
+            exit(1);
+        }
+    }
+
     #ifdef DEBUG
         printf("Ending execution\n");
     #endif
+
+    return 0;
 }
