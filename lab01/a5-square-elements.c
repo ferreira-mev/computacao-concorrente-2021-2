@@ -28,7 +28,7 @@ de acordo com o número da thread thr_n. */
     thr_args* args = (thr_args*) arg;
 
     // Quantidade de elementos pelos quais a thread é responsável:
-    int nelems = (NELEMS / NTHREADS) - 1;
+    int nelems = (NELEMS / NTHREADS);
 
     if ((NELEMS % NTHREADS) > args->thr_n)
     {
