@@ -10,7 +10,7 @@ Programa que eleva ao quadrado os elementos de um vetor, alterando o vetor inici
 #include <pthread.h>
 
 #define NTHREADS 2  // número de threads (além do main)
-#define NELEMS 10000  // número de entradas do vetor
+#define NELEMS 5 //10000  // número de entradas do vetor
 
 #define DEBUG
 
@@ -52,5 +52,77 @@ de acordo com o número da thread thr_n. */
         
     }
 
+    free(arg);
+
     pthread_exit(NULL);
+}
+
+int main()
+{
+
+    #ifdef DEBUG
+        printf("Beginning execution\n");
+    #endif
+
+    int input_vector[5] = {4, 6, 2, 9, 0};
+
+    #ifdef DEBUG
+        printf("Vector to square: \n");
+
+        for (int i=0; i < NELEMS; i++)
+        {
+            printf("%d ", input_vector[i]);
+        }
+
+        printf("\n");
+    #endif
+
+    pthread_t tid_sistema[NTHREADS];
+
+    thr_args* arg;
+
+    // Criando as threads:
+    for (int thread=0; thread<NTHREADS; thread++)
+    {
+        arg = malloc(sizeof(thr_args));
+
+        if (arg == NULL)
+        {
+            printf("Falha na alocacao\n");
+            exit(1);
+        }
+
+        arg->thr_n = thread;
+        arg->vector = input_vector;
+
+        #ifdef DEBUG
+            printf("Creating thread %d\n", thread);
+        #endif
+
+        if (pthread_create(&tid_sistema[thread], NULL, square_elems, (void*) arg))
+        {
+            printf("Erro na criacao da thread %d\n", thread);
+        }
+    }
+
+    // Aguardando todas as threads:
+    for (int thread=0; thread<NTHREADS; thread++)
+    {
+        if (pthread_join(tid_sistema[thread], NULL))
+        {
+            printf("Erro ao aguardar a thread %d\n", thread);
+        }
+    }
+
+    // Imprimindo o resultado:
+    for (int i=0; i < NELEMS; i++)
+    {
+        printf("%d ", input_vector[i]);
+    }
+
+    printf("\n");
+
+    #ifdef DEBUG
+        printf("Ending execution\n");
+    #endif
 }
