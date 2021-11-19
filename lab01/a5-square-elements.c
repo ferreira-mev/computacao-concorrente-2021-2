@@ -2,7 +2,16 @@
 Aluna: Eduarda Ferreira
 Laboratório 1 -- Atividade 5
 
-Programa que eleva ao quadrado os elementos de um vetor, alterando o vetor inicial, com o uso de duas threads paralelas além do programa principal.
+Programa que eleva ao quadrado os elementos de um vetor de inteiros, 
+alterando o vetor inicial, com o uso de duas threads paralelas além do
+programa principal.
+
+O vetor de entrada deve ser fornecido num arquivo de texto contendo uma 
+entrada por linha, com a última linha em branco. Esse arquivo deve ser
+passado ao programa principal pela linha de comando, por meio do
+redirecionamento de stdin; por exemplo:
+
+./a5-square-elements.exe < test_vector.txt
 */
 
 #include <stdio.h>
@@ -10,7 +19,7 @@ Programa que eleva ao quadrado os elementos de um vetor, alterando o vetor inici
 #include <pthread.h>
 
 #define NTHREADS 2  // número de threads (além do main)
-#define NELEMS 5 //10000  // número de entradas do vetor
+#define NELEMS 10000  // número de entradas do vetor
 
 #define DEBUG
 
@@ -59,12 +68,36 @@ de acordo com o número da thread thr_n. */
 
 int main()
 {
-
     #ifdef DEBUG
         printf("Beginning execution\n");
     #endif
 
-    int input_vector[5] = {4, 6, 2, 9, 0};
+    // Lendo o vetor de entrada:
+    int input_vector[NELEMS];
+    int v_pos = 0;  // para iterar sobre o vetor na inserção
+
+    char* input_line = NULL;
+	size_t len = 0;
+	/* getline (abaixo) não vai usar &len, como eu não aloquei input_line, mas precisa receber ssize_t*, então foi necessário 
+    declarar uma variável */
+
+	ssize_t chars_read = getline(&input_line, &len, stdin);
+
+	while(chars_read > 0) {
+		int new_elem = atoi(input_line);
+		// atoi já remove o (\r)\n
+
+        #ifdef DEBUG
+            printf("Read %d\n", new_elem);
+        #endif
+   
+
+        input_vector[v_pos] = new_elem;
+        v_pos++;
+
+		chars_read = getline(&input_line, &len, stdin);
+	}  // término da leitura
+
 
     #ifdef DEBUG
         printf("Vector to square: \n");
