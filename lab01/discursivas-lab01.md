@@ -2,4 +2,6 @@
 
 **A2.3** Desta vez, as saídas das threads eram identificadas. Eu esperaria que a ordem das saídas variasse, pois não estamos controlando a ordem nem de execução das threads, nem de impressão (forçosamente sequencial). Além disso, no programa similar ao da aula que fiz enquanto assistia, a ordem de fato variou. Neste caso, entretanto, observei um efeito curioso: obtive 0, 1, 2, ..., 9 todas as vezes, e apenas o momento de impressão dos "Hello World" variava.
 
-**A3.3** 
+**A3.3** Sim; a única diferença em relação ao caso anterior, naturalmente, é a impressão do número total de threads. Continuo obtendo saídas em ordem crescente do número da thread, com a variação se dando apenas no momento de impressão das saídas das threads em relação às do programa principal.
+
+**A4.3** A diferença deste programa para os anteriores é que a linha ```--Thread principal terminou``` é, agora, sempre a última saída; em particular, ela é impressa após as saídas de todas as demais threads.
