@@ -9,3 +9,6 @@ a5-square-elements.o: a5-square-elements.c
 
 run: a5-square-elements.exe
 	./a5-square-elements.exe
+
+clean:
+	rm $(wildcard *.o) $(wildcard *.exe)
