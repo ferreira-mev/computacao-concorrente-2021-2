@@ -12,3 +12,6 @@ run: a5-square-elements.exe
 
 clean:
 	rm $(wildcard *.o) $(wildcard *.exe)
+
+test_vector:
+	@for i in {0..9999}; do echo "$$i" >> test_vector.txt; done
