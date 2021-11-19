@@ -12,6 +12,9 @@ passado ao programa principal pela linha de comando, por meio do
 redirecionamento de stdin; por exemplo:
 
 ./a5-square-elements.exe < test_vector.txt
+
+A makefile incluída permite a execução de um teste com o vetor contendo
+os inteiros de -3 a 9996 chamando make test.
 */
 
 #include <stdio.h>
