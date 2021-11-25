@@ -16,7 +16,16 @@ A matriz de saída deve ter sido previamente alocada e fornecida
 por referência, por meio do parâmetro out.
 */
 {
-
+   for (int i=0; i < dim; i++)
+   {
+      for (int j=0; j < dim; j++)
+      {
+         for (int k=0; k < dim; k++)
+         {
+            out[i * dim + j] += mat1[i * dim + k] * mat2[k * dim + j];
+         }
+      }
+   }
 }
 
 void display_matrix(int dim, int* mat)
@@ -33,6 +42,8 @@ void display_matrix(int dim, int* mat)
       }
       printf("]\n");
    }
+
+   puts("");
 }
 
 int main(int argc, char* argv[])
@@ -50,22 +61,23 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
    }
 
-   // Preenchendo matrizes de uns, para teste:
+   // Preenchendo deterministicamente para teste:
    for (int i=0; i < dim; i++)
    {
       for (int j=0; j < dim; j++)
       {
-         mat1[i * dim + j] = 1;
-         mat2[i * dim + j] = 1;
+         mat1[i * dim + j] = i + j;
+         mat2[i * dim + j] = j;
+         out[i * dim + j] = 0;  // acumulador
       }
    }
 
    display_matrix(dim, mat1);
-   puts("");
    display_matrix(dim, mat2);
 
    // Testando multiplicação sequencial:
-   
+   seq_mat_mul(dim, mat1, mat2, out);
+   display_matrix(dim, out);
 
    // Liberando a memória alocada:
    free(mat1);
