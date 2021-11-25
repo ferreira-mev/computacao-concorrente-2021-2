@@ -95,6 +95,13 @@ int main(int argc, char* argv[])
       }
    }
 
+   // Aguardando a execução de todas as threads:
+
+   for (int t=0; t < nthreads; t++)
+   {
+      pthread_join(tid[t], NULL);
+   }
+
    // Comparando com multiplicação sequencial:
    seq_mat_mul(dim, mat1, mat2, seq_out);
    
