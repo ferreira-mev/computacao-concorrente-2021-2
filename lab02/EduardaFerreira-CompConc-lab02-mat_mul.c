@@ -8,6 +8,10 @@ Laboratório 2 -- Atividade 1
 #include <pthread.h>
 #include "timer.h"
 
+// Variáveis globais:
+int dim;
+int nthreads;
+
 // Cabeçalhos de funções:
 
 void seq_mat_mul(int dim, int* mat1, int* mat2, int* out);
@@ -18,7 +22,12 @@ void display_matrix(int dim, int* mat);
 
 int main(int argc, char* argv[])
 {
-   int dim = 4;  // temporário, para teste
+   if (argc < 2) { dim = 4; } // temporário, para teste
+   else
+   { 
+      dim = atoi(argv[1]);
+      nthreads = atoi(argv[2]);
+   }
 
    // Alocando memória:
    int* mat1 = malloc(sizeof(int) * dim * dim);
