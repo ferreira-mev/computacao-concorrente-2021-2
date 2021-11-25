@@ -22,11 +22,11 @@ void display_matrix(int dim, int* mat);
 
 int main(int argc, char* argv[])
 {
-   if (argc < 2) { dim = 4; } // temporário, para teste
+   if (argc == 1) { dim = 4; } // temporário, para teste
    else
    { 
       dim = atoi(argv[1]);
-      nthreads = atoi(argv[2]);
+      if (argc > 2) { nthreads = atoi(argv[2]); }
    }
 
    // Alocando memória:
