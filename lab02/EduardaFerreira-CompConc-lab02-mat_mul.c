@@ -25,7 +25,9 @@ void* conc_mat_mul(void* arg);
 
 int main(int argc, char* argv[])
 {
-   if (argc == 1) { dim = 4; } // temporário, para teste
+   pthread_t* tid;
+   
+   if (argc == 1) { dim = 4; nthreads = 1; } // temporário, para teste
    else
    { 
       dim = atoi(argv[1]);
@@ -41,10 +43,19 @@ int main(int argc, char* argv[])
    int* seq_out = malloc(sizeof(int) * dim * dim);
    int* conc_out = malloc(sizeof(int) * dim * dim);
 
-   if (!(mat1 && mat2 && seq_out && conc_out))
+   int* nrange = malloc(sizeof(int) * nthreads);
+
+   if (!(mat1 && mat2 && seq_out && conc_out && nrange))
    {
-      printf("Falha na alocação");
+      puts("Falha na alocação de memória");
       return EXIT_FAILURE;
+   }
+
+   // Preenchendo nrange com os identificadores "internos"
+   // das threads:
+   for (int t=0; t < nthreads; t++)
+   {
+      nrange[t] = t;
    }
 
    // Preenchendo matrizes de entrada com inteiros aleatórios:
@@ -60,8 +71,29 @@ int main(int argc, char* argv[])
       }
    }
 
+   puts("Matrizes de entrada:\n");
+
    display_matrix(dim, mat1);
    display_matrix(dim, mat2);
+
+   // Criação das threads:
+
+   tid = (pthread_t*) malloc(sizeof(pthread_t*) * nthreads);
+   
+   if (!tid)
+   {
+      puts("Falha na alocação de memória");
+      return EXIT_FAILURE;
+   }
+
+   for (int t=0; t < nthreads; t++)
+   {
+      if (pthread_create(&(tid[t]), NULL, conc_mat_mul, (void*) (nrange+t)))
+      {
+         puts("Falha na criação das threads");
+         return EXIT_FAILURE;
+      }
+   }
 
    // Comparando com multiplicação sequencial:
    seq_mat_mul(dim, mat1, mat2, seq_out);
