@@ -8,6 +8,8 @@ Laboratório 2 -- Atividade 1
 #include <pthread.h>
 #include "timer.h"
 
+#define DEBUG
+
 // Variáveis globais:
 
 int dim;
@@ -32,11 +34,33 @@ int main(int argc, char* argv[])
 {
    pthread_t* tid;
    
-   if (argc == 1) { dim = 4; nthreads = 1; } // temporário, para teste
-   else
+   if (argc == 1)
+   { 
+      #ifdef DEBUG
+      dim = 4; nthreads = 1;
+      #else
+      puts("Programa executado sem passagem de argumentos");
+      puts("pela linha de comando; executando em modo de teste");
+      puts(" de desempenho");
+      #endif
+      }
+   else if (argc == 3)
    { 
       dim = atoi(argv[1]);
-      if (argc > 2) { nthreads = atoi(argv[2]); }
+      nthreads = atoi(argv[2]);
+   }
+   else
+   {
+      puts("Modo de uso:\n");
+
+      puts("Para multiplicacao de matrizes quadradas dim x dim");
+      puts(" com entradas aleatorias, usando n threads:");
+      printf("%s dim n\n\n", argv[0]);
+
+      puts("Para avaliacao de desempenho:");
+      printf("%s\n", argv[0]);
+
+      return EXIT_FAILURE;
    }
 
    srand(time(NULL));
@@ -64,22 +88,30 @@ int main(int argc, char* argv[])
    }
 
    // Preenchendo matrizes de entrada com inteiros aleatórios:
+
    for (int i=0; i < dim; i++)
    {
       for (int j=0; j < dim; j++)
       {
+         #ifdef DEBUG
+         mat1[i * dim + j] = i + j;
+         mat2[i * dim + j] = i;
+         #else
          mat1[i * dim + j] = rand();
          mat2[i * dim + j] = rand();
+         #endif
 
          seq_out[i * dim + j] = 0;  // acumulador
          conc_out[i * dim + j] = 0;  // idem
       }
    }
 
+   #ifdef DEBUG
    puts("Matrizes de entrada:\n");
 
    display_matrix(dim, mat1);
    display_matrix(dim, mat2);
+   #endif
 
    // Criação das threads:
 
@@ -110,6 +142,7 @@ int main(int argc, char* argv[])
    // Comparando com amultiplicação sequencial:
    seq_mat_mul(dim, mat1, mat2, seq_out);
    
+   #ifndef DEBUG
    for (int i=0; i < dim; i++)
    {
       for (int j=0; j < dim; j++)
@@ -126,10 +159,18 @@ int main(int argc, char* argv[])
             printf("Resultado sequencial: %d\n", seq_out[idx]);
             printf("Resultado concorrente: %d\n", conc_out[idx]);
 
-            // return EXIT_FAILURE;
+            return EXIT_FAILURE;
          }
       }
    }
+
+   #else
+   puts("Resultado sequencial:\n");
+   display_matrix(dim, seq_out);
+
+   puts("\nResultado concorrente:\n");
+   display_matrix(dim, conc_out);
+   #endif
 
    // Liberando a memória alocada:
    free(mat1);
@@ -166,9 +207,8 @@ por referência, por meio do parâmetro seq_out.
 }
 
 void* conc_mat_mul(void* arg)
-/*
-Tarefa passada a cada thread do programa concorrente para multiplicação
-de matrizes dim x dim.
+/* Tarefa passada a cada thread do programa concorrente para
+multiplicação de matrizes dim x dim.
 
 A thread t fica responsável pelo cálculo das linhas de índice t, t + 
 nthreads, ... t + k * nthreads, para k natural, enquanto t + 
