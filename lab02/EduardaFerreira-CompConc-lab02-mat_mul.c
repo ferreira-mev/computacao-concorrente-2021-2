@@ -8,43 +8,13 @@ Laboratório 2 -- Atividade 1
 #include <pthread.h>
 #include "timer.h"
 
-void seq_mat_mul(int dim, int* mat1, int* mat2, int* out)
-/* Função para multiplicação sequencial de matrizes quadradas
-dim x dim.
+// Cabeçalhos de funções:
 
-A matriz de saída deve ter sido previamente alocada e fornecida
-por referência, por meio do parâmetro out.
-*/
-{
-   for (int i=0; i < dim; i++)
-   {
-      for (int j=0; j < dim; j++)
-      {
-         for (int k=0; k < dim; k++)
-         {
-            out[i * dim + j] += mat1[i * dim + k] * mat2[k * dim + j];
-         }
-      }
-   }
-}
+void seq_mat_mul(int dim, int* mat1, int* mat2, int* out);
 
-void display_matrix(int dim, int* mat)
-/* Imprime matriz quadrada dim x dim. */
-{
-   for (int i=0; i < dim; i++)
-   {
-      printf("[");
-      for (int j=0; j < dim; j++)
-      {
-         printf("%d", mat[i * dim + j]);
+void display_matrix(int dim, int* mat);
 
-         if (j < dim-1) { printf(", "); }
-      }
-      printf("]\n");
-   }
-
-   puts("");
-}
+// Fluxo da thread principal:
 
 int main(int argc, char* argv[])
 {
@@ -85,4 +55,44 @@ int main(int argc, char* argv[])
    free(out);
 
    return EXIT_SUCCESS;
+}
+
+// Definições de funções:
+
+void seq_mat_mul(int dim, int* mat1, int* mat2, int* out)
+/* Função para multiplicação sequencial de matrizes quadradas
+dim x dim.
+
+A matriz de saída deve ter sido previamente alocada e fornecida
+por referência, por meio do parâmetro out.
+*/
+{
+   for (int i=0; i < dim; i++)
+   {
+      for (int j=0; j < dim; j++)
+      {
+         for (int k=0; k < dim; k++)
+         {
+            out[i * dim + j] += mat1[i * dim + k] * mat2[k * dim + j];
+         }
+      }
+   }
+}
+
+void display_matrix(int dim, int* mat)
+/* Imprime matriz quadrada dim x dim. */
+{
+   for (int i=0; i < dim; i++)
+   {
+      printf("[");
+      for (int j=0; j < dim; j++)
+      {
+         printf("%d", mat[i * dim + j]);
+
+         if (j < dim-1) { printf(", "); }
+      }
+      printf("]\n");
+   }
+
+   puts("");
 }
