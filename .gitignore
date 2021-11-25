@@ -4,4 +4,10 @@
 *.out
 cods-mod1-lab1
 lab01/test_vector.txt
-
+*.log
+*.aux
+*.dvi
+*.out
+*.fls
+*latexmk
+*.gz
