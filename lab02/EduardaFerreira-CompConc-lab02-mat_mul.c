@@ -29,6 +29,8 @@ int main(int argc, char* argv[])
       if (argc > 2) { nthreads = atoi(argv[2]); }
    }
 
+   srand(time(NULL));
+
    // Alocando memória:
    int* mat1 = malloc(sizeof(int) * dim * dim);
    int* mat2 = malloc(sizeof(int) * dim * dim);
@@ -40,13 +42,13 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
    }
 
-   // Preenchendo deterministicamente para teste:
+   // Preenchendo matrizes de entrada com inteiros aleatórios:
    for (int i=0; i < dim; i++)
    {
       for (int j=0; j < dim; j++)
       {
-         mat1[i * dim + j] = i + j;
-         mat2[i * dim + j] = j;
+         mat1[i * dim + j] = rand();
+         mat2[i * dim + j] = rand();
          out[i * dim + j] = 0;  // acumulador
       }
    }
