@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
       pthread_join(tid[t], NULL);
    }
 
-   // Comparando com multiplicação sequencial:
+   // Comparando com amultiplicação sequencial:
    seq_mat_mul(dim, mat1, mat2, seq_out);
    
    for (int i=0; i < dim; i++)
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
             printf("Resultado sequencial: %d\n", seq_out[idx]);
             printf("Resultado concorrente: %d\n", conc_out[idx]);
 
-            return EXIT_FAILURE;
+            // return EXIT_FAILURE;
          }
       }
    }
@@ -137,6 +137,8 @@ int main(int argc, char* argv[])
 
    free(seq_out);
    free(conc_out);
+
+   free(nrange);
 
    return EXIT_SUCCESS;
 }
