@@ -1,0 +1,60 @@
+% !TEX program = xelatex
+
+\documentclass{article}
+
+\input{/home/duda/Documents/tex/examheaders.tex}
+
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xurl}  % linebreaks at any character
+
+\usepackage{graphicx}
+\graphicspath{ {..} }
+
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=gray,
+    filecolor=magenta,      
+    urlcolor=blue
+}
+
+\urlstyle{same}
+
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily,
+  breaklines=true,
+  breakatwhitespace=false
+} 
+
+\begin{document}
+
+\begin{large}
+    \compconc{Laboratório 2}
+\end{large}
+
+O trabalho foi feito numa máquina Linux (Fedora 35 Workstation) com 4 cores físicos e 8 lógicos, devido ao hyperthreading, conforme parte da saída do comando \texttt{lscpu}, reproduzida abaixo:
+
+\begin{lstlisting}
+Architecture:            x86_64
+  CPU op-mode(s):        32-bit, 64-bit
+    ...
+CPU(s):                  8
+  On-line CPU(s) list:   0-7
+Vendor ID:               GenuineIntel
+  Model name:            Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
+    CPU family:          6
+    Model:               158
+    Thread(s) per core:  2
+    Core(s) per socket:  4
+    Socket(s):           1
+    Stepping:            9
+    CPU max MHz:         3800.0000
+    CPU min MHz:         800.0000
+    ...
+\end{lstlisting}
+
+\end{document}
