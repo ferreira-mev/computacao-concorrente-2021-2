@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
          mat2[i * dim + j] = rand();
 
          seq_out[i * dim + j] = 0;  // acumulador
-         conc_out[i * dim + j] = 0;  //idem
+         conc_out[i * dim + j] = 0;  // idem
       }
    }
 
@@ -162,9 +162,29 @@ void* conc_mat_mul(void* arg)
 /*
 Tarefa passada a cada thread do programa concorrente para multiplicação
 de matrizes dim x dim.
+
+A thread t fica responsável pelo cálculo das linhas de índice t, t + 
+nthreads, ... t + k * nthreads, para k natural, enquanto t + 
+k * nthreads < dim.
 */
 {
    int id = *((int*) arg);
+
+   int row = id;
+   int counter = 0;
+
+   do
+   {
+      for (int j=0; j < dim; j++)
+      {
+         for (int k=0; k < dim; k++)
+         {
+            conc_out[row + j] += mat1[row + k] * mat2[k * dim + j];
+         }
+      }
+      counter++;
+      row = id + nthreads * counter;  // da próx iteração
+   } while (row < dim);
 
    pthread_exit(NULL);
 }
