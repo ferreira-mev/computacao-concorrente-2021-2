@@ -7,5 +7,9 @@ mat_mul.exe: mat_mul.o
 mat_mul.o: EduardaFerreira-CompConc-lab02-mat_mul.c
 	cc -c EduardaFerreira-CompConc-lab02-mat_mul.c -o mat_mul.o
 
+run: mat_mul.exe
+	./mat_mul.exe
+# for testing, before adding command line args
+
 clean:
 	rm $(wildcard *.o) $(wildcard *.exe)

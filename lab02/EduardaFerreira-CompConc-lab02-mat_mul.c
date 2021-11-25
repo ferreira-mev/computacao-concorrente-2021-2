@@ -19,11 +19,27 @@ por referência, por meio do parâmetro out.
 
 }
 
+void display_matrix(int dim, int* mat)
+/* Imprime matriz quadrada dim x dim. */
+{
+   for (int i=0; i < dim; i++)
+   {
+      printf("[");
+      for (int j=0; j < dim; j++)
+      {
+         printf("%d", mat[i * dim + j]);
+
+         if (j < dim-1) { printf(", "); }
+      }
+      printf("]\n");
+   }
+}
+
 int main(int argc, char* argv[])
 {
-   int dim = 10;  // temporário, para teste
+   int dim = 4;  // temporário, para teste
 
-   // Preenchendo matrizes de uns, para teste:
+   // Alocando memória:
    int* mat1 = malloc(sizeof(int) * dim * dim);
    int* mat2 = malloc(sizeof(int) * dim * dim);
    int* out = malloc(sizeof(int) * dim * dim);
@@ -33,6 +49,23 @@ int main(int argc, char* argv[])
       printf("Falha na alocação");
       return EXIT_FAILURE;
    }
+
+   // Preenchendo matrizes de uns, para teste:
+   for (int i=0; i < dim; i++)
+   {
+      for (int j=0; j < dim; j++)
+      {
+         mat1[i * dim + j] = 1;
+         mat2[i * dim + j] = 1;
+      }
+   }
+
+   display_matrix(dim, mat1);
+   puts("");
+   display_matrix(dim, mat2);
+
+   // Testando multiplicação sequencial:
+   
 
    // Liberando a memória alocada:
    free(mat1);
