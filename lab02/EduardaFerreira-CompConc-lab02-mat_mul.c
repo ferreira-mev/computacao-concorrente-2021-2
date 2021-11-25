@@ -63,9 +63,29 @@ int main(int argc, char* argv[])
    display_matrix(dim, mat1);
    display_matrix(dim, mat2);
 
-   // Testando multiplicação sequencial:
+   // Comparando com multiplicação sequencial:
    seq_mat_mul(dim, mat1, mat2, seq_out);
-   display_matrix(dim, seq_out);
+   
+   for (int i=0; i < dim; i++)
+   {
+      for (int j=0; j < dim; j++)
+      {
+         int idx = i * dim + j;
+
+         if (seq_out[idx] != conc_out[idx])
+         {
+            printf("Falha no programa concorrente: ");
+            printf("resultado diferente da multiplicacao sequencial\n");
+
+            printf("\nPrimeira divergencia: linha %d, coluna %d\n", i, j);
+
+            printf("Resultado sequencial: %d\n", seq_out[idx]);
+            printf("Resultado concorrente: %d\n", conc_out[idx]);
+
+            return EXIT_FAILURE;
+         }
+      }
+   }
 
    // Liberando a memória alocada:
    free(mat1);
