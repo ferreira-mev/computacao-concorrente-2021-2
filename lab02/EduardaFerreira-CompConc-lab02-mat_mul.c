@@ -9,14 +9,17 @@ Laboratório 2 -- Atividade 1
 #include "timer.h"
 
 // Variáveis globais:
+
 int dim;
 int nthreads;
 
 // Cabeçalhos de funções:
 
-void seq_mat_mul(int dim, int* mat1, int* mat2, int* out);
+void seq_mat_mul(int dim, int* mat1, int* mat2, int* seq_out);
 
 void display_matrix(int dim, int* mat);
+
+void* conc_mat_mul(void* arg);
 
 // Fluxo da thread principal:
 
@@ -34,9 +37,11 @@ int main(int argc, char* argv[])
    // Alocando memória:
    int* mat1 = malloc(sizeof(int) * dim * dim);
    int* mat2 = malloc(sizeof(int) * dim * dim);
-   int* out = malloc(sizeof(int) * dim * dim);
 
-   if (!(mat1 && mat2 && out))
+   int* seq_out = malloc(sizeof(int) * dim * dim);
+   int* conc_out = malloc(sizeof(int) * dim * dim);
+
+   if (!(mat1 && mat2 && seq_out && conc_out))
    {
       printf("Falha na alocação");
       return EXIT_FAILURE;
@@ -49,7 +54,9 @@ int main(int argc, char* argv[])
       {
          mat1[i * dim + j] = rand();
          mat2[i * dim + j] = rand();
-         out[i * dim + j] = 0;  // acumulador
+
+         seq_out[i * dim + j] = 0;  // acumulador
+         conc_out[i * dim + j] = 0;  //idem
       }
    }
 
@@ -57,25 +64,27 @@ int main(int argc, char* argv[])
    display_matrix(dim, mat2);
 
    // Testando multiplicação sequencial:
-   seq_mat_mul(dim, mat1, mat2, out);
-   display_matrix(dim, out);
+   seq_mat_mul(dim, mat1, mat2, seq_out);
+   display_matrix(dim, seq_out);
 
    // Liberando a memória alocada:
    free(mat1);
    free(mat2);
-   free(out);
+
+   free(seq_out);
+   free(conc_out);
 
    return EXIT_SUCCESS;
 }
 
 // Definições de funções:
 
-void seq_mat_mul(int dim, int* mat1, int* mat2, int* out)
+void seq_mat_mul(int dim, int* mat1, int* mat2, int* seq_out)
 /* Função para multiplicação sequencial de matrizes quadradas
 dim x dim.
 
 A matriz de saída deve ter sido previamente alocada e fornecida
-por referência, por meio do parâmetro out.
+por referência, por meio do parâmetro seq_out.
 */
 {
    for (int i=0; i < dim; i++)
@@ -84,10 +93,21 @@ por referência, por meio do parâmetro out.
       {
          for (int k=0; k < dim; k++)
          {
-            out[i * dim + j] += mat1[i * dim + k] * mat2[k * dim + j];
+            seq_out[i * dim + j] += mat1[i * dim + k] * mat2[k * dim + j];
          }
       }
    }
+}
+
+void* conc_mat_mul(void* arg)
+/*
+Tarefa passada a cada thread do programa concorrente para multiplicação
+de matrizes dim x dim.
+*/
+{
+   int id = *((int*) arg);
+
+   pthread_exit(NULL);
 }
 
 void display_matrix(int dim, int* mat)
