@@ -13,6 +13,11 @@ Laboratório 2 -- Atividade 1
 int dim;
 int nthreads;
 
+int* mat1;
+int* mat2;
+
+int* conc_out;
+
 // Cabeçalhos de funções:
 
 void seq_mat_mul(int dim, int* mat1, int* mat2, int* seq_out);
@@ -37,11 +42,11 @@ int main(int argc, char* argv[])
    srand(time(NULL));
 
    // Alocando memória:
-   int* mat1 = malloc(sizeof(int) * dim * dim);
-   int* mat2 = malloc(sizeof(int) * dim * dim);
+   mat1 = malloc(sizeof(int) * dim * dim);
+   mat2 = malloc(sizeof(int) * dim * dim);
 
    int* seq_out = malloc(sizeof(int) * dim * dim);
-   int* conc_out = malloc(sizeof(int) * dim * dim);
+   conc_out = malloc(sizeof(int) * dim * dim);
 
    int* nrange = malloc(sizeof(int) * nthreads);
 
