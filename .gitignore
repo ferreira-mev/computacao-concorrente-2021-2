@@ -11,3 +11,5 @@ lab01/test_vector.txt
 *.fls
 *latexmk
 *.gz
+*/.vscode
+
