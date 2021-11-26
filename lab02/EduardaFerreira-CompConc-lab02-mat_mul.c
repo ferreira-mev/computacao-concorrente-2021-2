@@ -94,8 +94,8 @@ int main(int argc, char* argv[])
       for (int j=0; j < dim; j++)
       {
          #ifdef DEBUG
-         mat1[i * dim + j] = i + j;
-         mat2[i * dim + j] = i;
+         mat1[i * dim + j] = i * dim + j;
+         mat2[i * dim + j] = 1;
          #else
          mat1[i * dim + j] = rand();
          mat2[i * dim + j] = rand();
@@ -226,7 +226,7 @@ k * nthreads < dim.
       {
          for (int k=0; k < dim; k++)
          {
-            conc_out[row + j] += mat1[row + k] * mat2[k * dim + j];
+            conc_out[row * dim + j] += mat1[row * dim + k] * mat2[k * dim + j];
          }
       }
       counter++;
