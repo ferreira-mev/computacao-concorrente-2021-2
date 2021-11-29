@@ -28,6 +28,8 @@ void display_matrix(int dim, int* mat);
 
 void* conc_mat_mul(void* arg);
 
+// int verify_conc_soln();
+
 // Fluxo da thread principal:
 
 int main(int argc, char* argv[])
@@ -41,26 +43,40 @@ int main(int argc, char* argv[])
       #else
       puts("Programa executado sem passagem de argumentos");
       puts("pela linha de comando; executando em modo de teste");
-      puts(" de desempenho");
+      puts("de desempenho");
       #endif
-      }
+   }
    else if (argc == 3)
    { 
       dim = atoi(argv[1]);
       nthreads = atoi(argv[2]);
+
+      #ifdef DEBUG
+      printf("dim = %d, nthreads = %d\n\n", dim, nthreads);
+      #endif
    }
    else
    {
       puts("Modo de uso:\n");
 
       puts("Para multiplicacao de matrizes quadradas dim x dim");
-      puts(" com entradas aleatorias, usando n threads:");
+      puts("com entradas aleatorias, usando n threads:");
       printf("%s dim n\n\n", argv[0]);
 
       puts("Para avaliacao de desempenho:");
       printf("%s\n", argv[0]);
 
       return EXIT_FAILURE;
+   }
+
+   if (nthreads > dim)
+   {
+      printf("O numero de threads fornecido (%d) e maior que\n", nthreads);
+      printf("numero de linhas (%d) e sera reduzido para %d\n\n", dim, dim);
+
+      nthreads = dim;
+      // (Eu podia só usar um min entre dim e nthreads, mas eu queria
+      // o if para avisar ao usuário)
    }
 
    srand(time(NULL));
