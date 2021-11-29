@@ -26,4 +26,4 @@
 }
 #endif
 //now = time.tv_sec + time.tv_nsec/1000000000.0; //seconds
-//now = (BILLION * time.tv_sec) + time.tv_nsec; //nanoseconds
+// now = (BILLION * time.tv_sec) + time.tv_nsec; //nanoseconds

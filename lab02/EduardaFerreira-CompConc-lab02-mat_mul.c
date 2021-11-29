@@ -8,7 +8,7 @@ Laboratório 2 -- Atividade 1
 #include <pthread.h>
 #include "timer.h"
 
-// #define DEBUG
+#define DEBUG
 
 // Variáveis globais:
 
@@ -46,6 +46,7 @@ como estava. */
 int main(int argc, char* argv[])
 {
    pthread_t* tid;
+   double t0, tf, dt;
    
    if (argc == 1)
    { 
@@ -136,11 +137,13 @@ int main(int argc, char* argv[])
    #ifdef DEBUG
    puts("Matrizes de entrada:\n");
 
-   display_matrix(dim, mat1);
-   display_matrix(dim, mat2);
+   // display_matrix(dim, mat1);
+   // display_matrix(dim, mat2);
    #endif
 
    // Criação das threads:
+
+   GET_TIME(t0);  // início da medição concorrente
 
    tid = (pthread_t*) malloc(sizeof(pthread_t*) * nthreads);
    
@@ -166,18 +169,36 @@ int main(int argc, char* argv[])
       pthread_join(tid[t], NULL);
    }
 
+   GET_TIME(tf);  // fim da medição concorrente
+   
+   dt = tf - t0;
+
+   #ifdef DEBUG
+   printf("Duracao da etapa concorrente: %lf segundos\n", dt);
+   #endif
+
    // Comparando com a multiplicação sequencial:
+   GET_TIME(t0);  // início da medição sequencial
+
    seq_mat_mul(dim, mat1, mat2, seq_out);
+
+   GET_TIME(tf);  // fim da medição sequencial
+
+   dt = tf - t0;
+
+   #ifdef DEBUG
+   printf("Duracao da etapa sequencial: %lf segundos\n", dt);
+   #endif
    
    #ifndef DEBUG
    if (verify_conc_soln(seq_out, conc_out)) { return EXIT_FAILURE; }
 
    #else
    puts("Resultado sequencial:\n");
-   display_matrix(dim, seq_out);
+   // display_matrix(dim, seq_out);
 
-   puts("\nResultado concorrente:\n");
-   display_matrix(dim, conc_out);
+   // puts("\nResultado concorrente:\n");
+   // display_matrix(dim, conc_out);
    #endif
 
    // Liberando a memória alocada:
@@ -286,6 +307,6 @@ a saída da função sequencial. */
          }
       }
    }
-   
+
    return 0;
 }
