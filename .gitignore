@@ -12,4 +12,5 @@ lab01/test_vector.txt
 *latexmk
 *.gz
 */.vscode
+*.csv
 
