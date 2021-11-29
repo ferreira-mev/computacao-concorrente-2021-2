@@ -9,7 +9,7 @@ Laboratório 2 -- Atividade 1
 #include <math.h>
 #include "timer.h"
 
-// #define DEBUG
+#define DEBUG
 
 // Variáveis globais:
 
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
       nthreads_arr = {1, 2, 4, 8}
       */
 
-      int n0 = 10; //500;
+      int n0 = 100; //500;
 
       for (int d=0; d < ndims; d++)
       {
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
          n0 *= 2;
 
          #ifdef DEBUG
-         dim_arr[d] = 5;
+         // dim_arr[d] = 5;
          printf("dim_arr[%d] = %d\n", d, dim_arr[d]);
          #endif
       }
@@ -191,8 +191,8 @@ int main(int argc, char* argv[])
       #ifdef DEBUG
       puts("Matrizes de entrada:\n");
 
-      display_matrix(dim, mat1);
-      display_matrix(dim, mat2);
+      // display_matrix(dim, mat1);
+      // display_matrix(dim, mat2);
       #endif
       
 
@@ -228,7 +228,7 @@ int main(int argc, char* argv[])
          printf("Duracao da etapa sequencial: %lf segundos\n", dt);
          #endif
 
-         if (!(r || d))
+         if (!r)
          // primeira iteração, t_seq não inicializado
          {
             t_seq[d] = dt;
@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
             printf("Duracao da etapa concorrente: %lf segundos\n", dt);
             #endif
 
-            if (!(r || d || n))
+            if (!r)
             // primeira iteração, t_conc não inicializado
             {
                t_conc[idx] = dt;
@@ -332,10 +332,10 @@ int main(int argc, char* argv[])
 
             #else
             puts("Resultado sequencial:\n");
-            display_matrix(dim, seq_out);
+            // display_matrix(dim, seq_out);
 
             puts("\nResultado concorrente:\n");
-            display_matrix(dim, conc_out);
+            // display_matrix(dim, conc_out);
             #endif
 
             free(conc_out);
@@ -344,11 +344,61 @@ int main(int argc, char* argv[])
 
          free(seq_out);
       }
-      
+
       free(mat1);
       free(mat2);
    }
    
+   // Salvando as medições em um arquivo csv:
+
+   FILE* out_csv = fopen("perf_gains.csv", "w");
+
+   // Cabeçalho do csv:
+
+   for (int n=0; n < nnthr; n++)
+   {
+      fprintf(out_csv, "%d", nthreads_arr[n]);
+
+      if (n < nnthr - 1)
+      {
+         fprintf(out_csv, ",");
+      }
+      else
+      {
+         fprintf(out_csv, "\n");
+      }
+   }
+
+   double perf_gain;
+
+   for (int d=0; d < ndims; d++)
+   {
+      fprintf(out_csv, "%d,", dim_arr[d]);
+
+      for (int n=0; n < nnthr; n++)
+      {
+         perf_gain = t_seq[d] / t_conc[d * nnthr + n];
+
+         #ifdef DEBUG
+         printf("dim = %d, n = %d\n", dim_arr[d], nthreads_arr[n]);
+         printf("perf_gain = %lf, t_seq[d] = %lf, t_conc[d * nnthr + n] = %lf\n", perf_gain, t_seq[d], t_conc[d * nnthr + n]);
+         #endif
+
+         fprintf(out_csv, "%lf", perf_gain);
+
+         if (n < nnthr - 1)
+         {
+            fprintf(out_csv, ",");
+         }
+         else
+         {
+            fprintf(out_csv, "\n");
+         }
+      }
+   }
+
+   fclose(out_csv);
+
    free(dim_arr);
    free(nthreads_arr);
 
