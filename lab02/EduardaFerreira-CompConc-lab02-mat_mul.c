@@ -341,21 +341,14 @@ int main(int argc, char* argv[])
             free(conc_out);
             free(nrange);
          }
-      }
 
+         free(seq_out);
+      }
+      
       free(mat1);
       free(mat2);
-      free(seq_out);
    }
    
-
-   // for (int d=0; d < ndims; d++)
-   // {
-   //    for (int n=0; n < nnthr; n++)
-   //    {
-
-   //    }
-   // }
    free(dim_arr);
    free(nthreads_arr);
 
