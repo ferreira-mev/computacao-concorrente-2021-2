@@ -6,6 +6,7 @@ Laboratório 2 -- Atividade 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <math.h>
 #include "timer.h"
 
 #define DEBUG
@@ -51,15 +52,20 @@ int main(int argc, char* argv[])
    int NRUNS;
    int NDIMS;
    int NNTHR;
+
+   int dim_arr[NDIMS];
+   int nthreads_arr[NNTHR];
+
+   double t_seq[NDIMS * NNTHR];
+   double t_conc[NDIMS * NNTHR];
+   // Linhas: dimensão
+   // Colunas: número de threads
    
    if (argc == 1)
    { 
       puts("Programa executado sem passagem de argumentos");
       puts("pela linha de comando; executando em modo de teste");
       puts("de desempenho");
-
-      int dim_arr[3] = {500, 1000, 200};
-      int nthreads_arr[4] = {1, 2, 4, 8};
 
       NRUNS = 5;
       NDIMS = 3;
@@ -68,15 +74,49 @@ int main(int argc, char* argv[])
       // dado por variável -- não posso, por exemplo, usar
       // int dim_arr[NDIMS] = {500, 1000, 200};)
 
-      double t_seq[NDIMS * NNTHR];
-      double t_conc[NDIMS * NNTHR];
-      // Linhas: dimensão
-      // Colunas: número de threads
+      int n0 = 500;
+
+      for (int d=0; d < NDIMS; d++)
+      {
+         dim_arr[d] = n0;
+         n0 *= 2;
+
+         #ifdef DEBUG
+         printf("dim_arr[%d] = %d\n", d, dim_arr[d]);
+         #endif
+      }
+
+      n0 = 1;
+
+      for (int n=0; n < NNTHR; n++)
+      {
+         nthreads_arr[n] = n0;
+         n0 *= 2;
+
+         #ifdef DEBUG
+         printf("nthreads_arr[%d] = %d\n", n, nthreads_arr[n]);
+         #endif
+      }
+
+      // dim_arr = {500, 1000, 2000};
+      // nthreads_arr = {1, 2, 4, 8};
+
+      
    }
    else if (argc == 3)
    { 
       dim = atoi(argv[1]);
       nthreads = atoi(argv[2]);
+
+      if (nthreads > dim)
+      {
+         printf("O numero de threads fornecido (%d) e maior que\n", nthreads);
+         printf("numero de linhas (%d) e sera reduzido para %d\n\n", dim, dim);
+
+         nthreads = dim;
+         // (Eu podia só usar um min entre dim e nthreads, mas eu queria
+         // o if para avisar ao usuário)
+      }
 
       int dim_arr[1] = {dim};
       int nthreads_arr[1] = {nthreads};
@@ -103,17 +143,16 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
    }
 
-   if (nthreads > dim)
-   {
-      printf("O numero de threads fornecido (%d) e maior que\n", nthreads);
-      printf("numero de linhas (%d) e sera reduzido para %d\n\n", dim, dim);
-
-      nthreads = dim;
-      // (Eu podia só usar um min entre dim e nthreads, mas eu queria
-      // o if para avisar ao usuário)
-   }
-
    srand(time(NULL));
+
+   for (int d=0; d < NDIMS; d++)
+   {
+      for (int n=0; n < NNTHR; n++)
+      {
+         dim = dim_arr[d];
+         nthreads = nthreads_arr[n];
+      }
+   }
 
    // Alocando memória:
    mat1 = malloc(sizeof(int) * dim * dim);
@@ -231,6 +270,7 @@ int main(int argc, char* argv[])
    free(conc_out);
 
    free(nrange);
+
 
    return EXIT_SUCCESS;
 }
