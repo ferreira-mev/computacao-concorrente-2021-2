@@ -73,7 +73,6 @@ int main(int argc, char* argv[])
       nruns = 2;
       ndims = 2;
       nnthr = 2;
-
       #else
       nruns = 5;
       ndims = 3;
@@ -139,7 +138,7 @@ int main(int argc, char* argv[])
       nthreads_arr = {1, 2, 4, 8}
       */
 
-      int n0 = 500;
+      int n0 = 10; //500;
 
       for (int d=0; d < ndims; d++)
       {
@@ -172,11 +171,15 @@ int main(int argc, char* argv[])
 
    srand(time(NULL));
 
-   for (int r=0; r < nruns; r++)
+   int idx;
+
+   for (int d=0; d < ndims; d++)
    {
-      for (int d=0; d < ndims; d++)
+      for (int n=0; n < nnthr; n++)
       {
-         for (int n=0; n < nnthr; n++)
+         idx = d * nnthr + n;
+
+         for (int r=0; r < nruns; r++)
          {
             dim = dim_arr[d];
             nthreads = nthreads_arr[n];
@@ -267,10 +270,21 @@ int main(int argc, char* argv[])
             
             dt = tf - t0;
 
-            // #ifdef DEBUG
+            #ifdef DEBUG
             printf("Duracao da etapa concorrente: %lf segundos\n", dt);
-            // #endif
+            #endif
 
+            if (!(r || d || n))
+            // primeira iteração, t_conc não inicializado
+            {
+               t_conc[idx] = dt;
+            }
+            else if (t_conc[idx] > dt)
+            // mínimo entre a medição atual e a menor anterior
+            {
+               t_conc[idx] = dt;
+            }
+            
             // Comparando com a multiplicação sequencial:
             GET_TIME(t0);  // início da medição sequencial
 
@@ -280,20 +294,32 @@ int main(int argc, char* argv[])
 
             dt = tf - t0;
 
-            // #ifdef DEBUG
-            printf("Duracao da etapa sequencial: %lf segundos\n", dt);
-            // #endif
-            
             #ifndef DEBUG
-            if (verify_conc_soln(seq_out, conc_out)) { return EXIT_FAILURE; }
+            if (verify_conc_soln(seq_out, conc_out))
+            {
+               return EXIT_FAILURE;
+            }
 
             #else
+            printf("Duracao da etapa sequencial: %lf segundos\n", dt);
+
             puts("Resultado sequencial:\n");
             display_matrix(dim, seq_out);
 
             puts("\nResultado concorrente:\n");
             display_matrix(dim, conc_out);
             #endif
+
+            if (!(r || d || n))
+            // primeira iteração, t_seq não inicializado
+            {
+               t_seq[idx] = dt;
+            }
+            else if (t_conc[idx] > dt)
+            // mínimo entre a medição atual e a menor anterior
+            {
+               t_seq[idx] = dt;
+            }
 
             // Liberando a memória alocada:
             free(mat1);
@@ -315,7 +341,12 @@ int main(int argc, char* argv[])
 
    //    }
    // }
+   free(dim_arr);
+   free(nthreads_arr);
 
+   free(t_seq);
+   free(t_conc);
+   
    return EXIT_SUCCESS;
 }
 
