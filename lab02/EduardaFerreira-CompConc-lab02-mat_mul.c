@@ -29,18 +29,7 @@ void display_matrix(int dim, int* mat);
 
 void* conc_mat_mul(void* arg);
 
-int verify_conc_soln(int* seq_out, int* conc_out);
-
-/* Obs: Sei que não seria necessário passar dim para as funções por se
-tratar de uma variável global; dim aparece como parâmetro por um
-"artefato histórico", por assim dizer. Eu segui a sequência sugerida 
-nas instruções do laboratório e comecei fazendo um programa sequencial,
-para servir como teste para a saída concorrente, então, de início, não
-trabalhei com variáveis globais. Quando introduzi a versão concorrente, 
-e com ela as variáveis globais, acabei "não mexendo" nas funções que
-já havia escrito anteriormente. Ao me dar conta disso, achei que não
-valia o refactor e a chance de introduzir um bug; deixei funcionando
-como estava. */
+int verify_conc_soln(int dim, int* seq_out, int* conc_out);
 
 // Fluxo da thread principal:
 
@@ -171,17 +160,90 @@ int main(int argc, char* argv[])
 
    srand(time(NULL));
 
-   int idx;
-
    for (int d=0; d < ndims; d++)
    {
-      for (int n=0; n < nnthr; n++)
-      {
-         idx = d * nnthr + n;
+      dim = dim_arr[d];
 
-         for (int r=0; r < nruns; r++)
+      mat1 = malloc(sizeof(int) * dim * dim);
+      mat2 = malloc(sizeof(int) * dim * dim);
+
+      if (!(mat1 && mat2))
+      {
+         puts("Falha na alocacao de memoria");
+         return EXIT_FAILURE;
+      }
+
+      // Preenchendo matrizes de entrada com inteiros aleatórios:
+      for (int i=0; i < dim; i++)
+      {
+         for (int j=0; j < dim; j++)
          {
-            dim = dim_arr[d];
+            // #ifdef DEBUG
+            // mat1[i * dim + j] = i * dim + j;
+            // mat2[i * dim + j] = 1;
+            // #else
+            mat1[i * dim + j] = rand();
+            mat2[i * dim + j] = rand();
+            // #endif
+         }
+      }
+
+      #ifdef DEBUG
+      puts("Matrizes de entrada:\n");
+
+      display_matrix(dim, mat1);
+      display_matrix(dim, mat2);
+      #endif
+      
+
+      for (int r=0; r < nruns; r++)
+      {
+         // Multiplicação sequencial:
+
+         seq_out = malloc(sizeof(int) * dim * dim);
+
+         if (!(seq_out))
+         {
+            puts("Falha na alocacao de memoria");
+            return EXIT_FAILURE;
+         }
+
+         for (int i=0; i < dim; i++)
+         {
+            for (int j=0; j < dim; j++)
+            {
+               seq_out[i * dim + j] = 0;  // acumulador
+            }
+         }
+
+         GET_TIME(t0);  // início da medição sequencial
+
+         seq_mat_mul(dim, mat1, mat2, seq_out);
+
+         GET_TIME(tf);  // fim da medição sequencial
+
+         dt = tf - t0;
+
+         #ifdef DEBUG
+         printf("Duracao da etapa sequencial: %lf segundos\n", dt);
+         #endif
+
+         if (!(r || d))
+         // primeira iteração, t_seq não inicializado
+         {
+            t_seq[d] = dt;
+         }
+         else if (t_seq[d] > dt)
+         // mínimo entre a medição atual e a menor anterior
+         {
+            t_seq[d] = dt;
+         }
+         
+         // Início das iterações concorrentes:
+
+         for (int n=0; n < nnthr; n++)
+         {
+            int idx = d * nnthr + n;
             nthreads = nthreads_arr[n];
 
             #ifdef DEBUG
@@ -190,16 +252,11 @@ int main(int argc, char* argv[])
             printf("dim = %d, nthreads = %d\n", dim, nthreads);
             #endif
 
-            // Alocando memória:
-            mat1 = malloc(sizeof(int) * dim * dim);
-            mat2 = malloc(sizeof(int) * dim * dim);
-
-            seq_out = malloc(sizeof(int) * dim * dim);
             conc_out = malloc(sizeof(int) * dim * dim);
 
             nrange = malloc(sizeof(int) * nthreads);
 
-            if (!(mat1 && mat2 && seq_out && conc_out && nrange))
+            if (!(conc_out && nrange))
             {
                puts("Falha na alocacao de memoria");
                return EXIT_FAILURE;
@@ -212,31 +269,13 @@ int main(int argc, char* argv[])
                nrange[t] = t;
             }
 
-            // Preenchendo matrizes de entrada com inteiros aleatórios:
-
             for (int i=0; i < dim; i++)
             {
                for (int j=0; j < dim; j++)
-               {
-                  #ifdef DEBUG
-                  mat1[i * dim + j] = i * dim + j;
-                  mat2[i * dim + j] = 1;
-                  #else
-                  mat1[i * dim + j] = rand();
-                  mat2[i * dim + j] = rand();
-                  #endif
-
-                  seq_out[i * dim + j] = 0;  // acumulador
-                  conc_out[i * dim + j] = 0;  // idem
+               { 
+                  conc_out[i * dim + j] = 0;  // acumulador
                }
             }
-
-            #ifdef DEBUG
-            puts("Matrizes de entrada:\n");
-
-            display_matrix(dim, mat1);
-            display_matrix(dim, mat2);
-            #endif
 
             // Criação das threads:
 
@@ -285,24 +324,13 @@ int main(int argc, char* argv[])
                t_conc[idx] = dt;
             }
             
-            // Comparando com a multiplicação sequencial:
-            GET_TIME(t0);  // início da medição sequencial
-
-            seq_mat_mul(dim, mat1, mat2, seq_out);
-
-            GET_TIME(tf);  // fim da medição sequencial
-
-            dt = tf - t0;
-
             #ifndef DEBUG
-            if (verify_conc_soln(seq_out, conc_out))
+            if (verify_conc_soln(dim, seq_out, conc_out))
             {
                return EXIT_FAILURE;
             }
 
             #else
-            printf("Duracao da etapa sequencial: %lf segundos\n", dt);
-
             puts("Resultado sequencial:\n");
             display_matrix(dim, seq_out);
 
@@ -310,27 +338,14 @@ int main(int argc, char* argv[])
             display_matrix(dim, conc_out);
             #endif
 
-            if (!(r || d || n))
-            // primeira iteração, t_seq não inicializado
-            {
-               t_seq[idx] = dt;
-            }
-            else if (t_conc[idx] > dt)
-            // mínimo entre a medição atual e a menor anterior
-            {
-               t_seq[idx] = dt;
-            }
-
-            // Liberando a memória alocada:
-            free(mat1);
-            free(mat2);
-
-            free(seq_out);
             free(conc_out);
-
             free(nrange);
          }
       }
+
+      free(mat1);
+      free(mat2);
+      free(seq_out);
    }
    
 
@@ -420,7 +435,7 @@ void display_matrix(int dim, int* mat)
    puts("");
 }
 
-int verify_conc_soln(int* seq_out, int* conc_out)
+int verify_conc_soln(int dim, int* seq_out, int* conc_out)
 /* Verifica a solução concorrente por meio da comparação com
 a saída da função sequencial. */
 {
