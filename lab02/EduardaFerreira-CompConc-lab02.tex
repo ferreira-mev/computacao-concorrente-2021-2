@@ -30,6 +30,8 @@
   breakatwhitespace=false
 } 
 
+\usepackage{csvsimple}
+
 \begin{document}
 
 \begin{large}
@@ -56,5 +58,18 @@ Vendor ID:               GenuineIntel
     CPU min MHz:         800.0000
     ...
 \end{lstlisting}
+
+A tabela com as medições feitas conforme o enunciado do laboratório está a seguir.
+
+\begin{center}
+  \begin{tabular}{c}
+    \csvautotabular{perf_gains.csv}
+    % Não sou familiarizada com esse pacote csvsimple, acabei de descobrir que ele existe. Acho que não fiz muito direito não, não estou em paz com esse {c} único, mas por ora serve; LaTeX, como CSS, é algo de caminhos misteriosos e paradigma orientado à gambiarra.
+  \end{tabular}
+\end{center}
+
+Não resisti a incluir 8 threads nas medidas, já que -- supostamente -- meu processador tem até essa capacidade. Foi interessante observar que, provavelmente como consequência de a quantidade de cores \emph{físicos} ser 4, usar 8 threads levou a uma performance menor do que 4, apesar de ainda ter sido superior ao uso de 2. Até esse ponto, dobrar o número de threads tinha aproximadamente dobrado a razão ${T_{\text{sequencial}}}/{T_{\text{concorrente}}}$; a partir daí, acredito que o processador esteja, na verdade, simulando um programa paralelo com execução sequencial, o que gera um overhead sem um ganho tão grande de performance.
+
+Um fato que achei curioso foi a execução do programa concorrente com apenas uma thread ter sido marginalmente mais rápida do que a do programa sequencial. Eu esperava que, nesse caso, a versão concorrente fosse mais lenta, devido ao overhead de criação de uma thread sem ganho de eficiência devido à paralelização. Não sei se é alguma otimização ou da própria linguagem, ou acidentalmente introduzida por mim pela forma como escrevi o código; quando rodei testes manuais com valores menores, tenho a impressão de ter observado o contrário: programas concorrentes ligeiramente mais lentos (creio que algo como 0.9) para matrizes pequenas.
 
 \end{document}
