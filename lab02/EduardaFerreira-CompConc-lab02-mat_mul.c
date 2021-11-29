@@ -47,21 +47,43 @@ int main(int argc, char* argv[])
 {
    pthread_t* tid;
    double t0, tf, dt;
+
+   int NRUNS;
+   int NDIMS;
+   int NNTHR;
    
    if (argc == 1)
    { 
-      #ifdef DEBUG
-      dim = 4; nthreads = 1;
-      #else
       puts("Programa executado sem passagem de argumentos");
       puts("pela linha de comando; executando em modo de teste");
       puts("de desempenho");
-      #endif
+
+      int dim_arr[3] = {500, 1000, 200};
+      int nthreads_arr[4] = {1, 2, 4, 8};
+
+      NRUNS = 5;
+      NDIMS = 3;
+      NNTHR = 4;
+      // (o C não permite inicializar arrays de tamanho
+      // dado por variável -- não posso, por exemplo, usar
+      // int dim_arr[NDIMS] = {500, 1000, 200};)
+
+      double t_seq[NDIMS * NNTHR];
+      double t_conc[NDIMS * NNTHR];
+      // Linhas: dimensão
+      // Colunas: número de threads
    }
    else if (argc == 3)
    { 
       dim = atoi(argv[1]);
       nthreads = atoi(argv[2]);
+
+      int dim_arr[1] = {dim};
+      int nthreads_arr[1] = {nthreads};
+
+      NRUNS = 1;
+      NDIMS = 1;
+      NNTHR = 1;
 
       #ifdef DEBUG
       printf("dim = %d, nthreads = %d\n\n", dim, nthreads);
