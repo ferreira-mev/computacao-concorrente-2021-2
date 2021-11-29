@@ -9,7 +9,7 @@ Laboratório 2 -- Atividade 1
 #include <math.h>
 #include "timer.h"
 
-#define DEBUG
+// #define DEBUG
 
 // Variáveis globais:
 
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
       nthreads_arr = {1, 2, 4, 8}
       */
 
-      int n0 = 100; //500;
+      int n0 = 500;
 
       for (int d=0; d < ndims; d++)
       {
@@ -355,9 +355,16 @@ int main(int argc, char* argv[])
 
    // Cabeçalho do csv:
 
+   fprintf(out_csv, "dim,");
+
    for (int n=0; n < nnthr; n++)
    {
-      fprintf(out_csv, "%d", nthreads_arr[n]);
+      fprintf(out_csv, "%d thread", nthreads_arr[n]);
+
+      if (nthreads_arr[n] > 1)
+      {
+         fprintf(out_csv, "s");
+      }
 
       if (n < nnthr - 1)
       {
