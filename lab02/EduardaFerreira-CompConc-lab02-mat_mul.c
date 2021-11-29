@@ -9,7 +9,7 @@ Laboratório 2 -- Atividade 1
 #include <math.h>
 #include "timer.h"
 
-#define DEBUG
+// #define DEBUG
 
 // Variáveis globais:
 
@@ -46,18 +46,20 @@ como estava. */
 
 int main(int argc, char* argv[])
 {
+   int* seq_out;
+   int* nrange;
    pthread_t* tid;
    double t0, tf, dt;
 
-   int NRUNS;
-   int NDIMS;
-   int NNTHR;
+   int nruns;
+   int ndims;
+   int nnthr;
 
-   int dim_arr[NDIMS];
-   int nthreads_arr[NNTHR];
+   int* dim_arr;
+   int* nthreads_arr;
 
-   double t_seq[NDIMS * NNTHR];
-   double t_conc[NDIMS * NNTHR];
+   double* t_seq;
+   double* t_conc;
    // Linhas: dimensão
    // Colunas: número de threads
    
@@ -67,46 +69,25 @@ int main(int argc, char* argv[])
       puts("pela linha de comando; executando em modo de teste");
       puts("de desempenho");
 
-      NRUNS = 5;
-      NDIMS = 3;
-      NNTHR = 4;
-      // (o C não permite inicializar arrays de tamanho
-      // dado por variável -- não posso, por exemplo, usar
-      // int dim_arr[NDIMS] = {500, 1000, 200};)
+      #ifdef DEBUG
+      nruns = 2;
+      ndims = 2;
+      nnthr = 2;
 
-      int n0 = 500;
-
-      for (int d=0; d < NDIMS; d++)
-      {
-         dim_arr[d] = n0;
-         n0 *= 2;
-
-         #ifdef DEBUG
-         printf("dim_arr[%d] = %d\n", d, dim_arr[d]);
-         #endif
-      }
-
-      n0 = 1;
-
-      for (int n=0; n < NNTHR; n++)
-      {
-         nthreads_arr[n] = n0;
-         n0 *= 2;
-
-         #ifdef DEBUG
-         printf("nthreads_arr[%d] = %d\n", n, nthreads_arr[n]);
-         #endif
-      }
-
-      // dim_arr = {500, 1000, 2000};
-      // nthreads_arr = {1, 2, 4, 8};
-
-      
+      #else
+      nruns = 5;
+      ndims = 3;
+      nnthr = 4;
+      #endif
    }
    else if (argc == 3)
    { 
       dim = atoi(argv[1]);
       nthreads = atoi(argv[2]);
+
+      #ifdef DEBUG
+      printf("dim = %d, nthreads = %d\n\n", dim, nthreads);
+      #endif
 
       if (nthreads > dim)
       {
@@ -118,16 +99,9 @@ int main(int argc, char* argv[])
          // o if para avisar ao usuário)
       }
 
-      int dim_arr[1] = {dim};
-      int nthreads_arr[1] = {nthreads};
-
-      NRUNS = 1;
-      NDIMS = 1;
-      NNTHR = 1;
-
-      #ifdef DEBUG
-      printf("dim = %d, nthreads = %d\n\n", dim, nthreads);
-      #endif
+      nruns = 1;
+      ndims = 1;
+      nnthr = 1;
    }
    else
    {
@@ -143,134 +117,204 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
    }
 
+   dim_arr = malloc(sizeof(int) * ndims);
+   nthreads_arr = malloc(sizeof(int) * nnthr);
+
+   t_seq = malloc(sizeof(double) * ndims * nnthr);
+   t_conc = malloc(sizeof(double) * ndims * nnthr);
+
+   if (!(dim_arr && nthreads_arr && t_seq && t_conc))
+   {
+      puts("Falha na alocacao de memoria");
+      return EXIT_FAILURE;
+   }
+
+   if (argc == 1)
+   { 
+      /* Contorno ad hoc e meio gambiarrado para a impossibilidade 
+      de inicialização de arrays de tamanho variável em C (eu queria
+      seguir o mesmo fluxo da main para argc = 1 ou 3); construindo
+      
+      dim_arr = {500, 1000, 2000}
+      nthreads_arr = {1, 2, 4, 8}
+      */
+
+      int n0 = 500;
+
+      for (int d=0; d < ndims; d++)
+      {
+         dim_arr[d] = n0;
+         n0 *= 2;
+
+         #ifdef DEBUG
+         dim_arr[d] = 5;
+         printf("dim_arr[%d] = %d\n", d, dim_arr[d]);
+         #endif
+      }
+
+      n0 = 1;
+
+      for (int n=0; n < nnthr; n++)
+      {
+         nthreads_arr[n] = n0;
+         n0 *= 2;
+
+         #ifdef DEBUG
+         printf("nthreads_arr[%d] = %d\n", n, nthreads_arr[n]);
+         #endif
+      }
+   }
+   else if (argc == 3)
+   { 
+      dim_arr[0] = dim;
+      nthreads_arr[0] = nthreads;
+   }
+
    srand(time(NULL));
 
-   for (int d=0; d < NDIMS; d++)
+   for (int r=0; r < nruns; r++)
    {
-      for (int n=0; n < NNTHR; n++)
+      for (int d=0; d < ndims; d++)
       {
-         dim = dim_arr[d];
-         nthreads = nthreads_arr[n];
+         for (int n=0; n < nnthr; n++)
+         {
+            dim = dim_arr[d];
+            nthreads = nthreads_arr[n];
+
+            #ifdef DEBUG
+            printf("dim_arr[%d] = %d\n", d, dim_arr[d]);
+            printf("nthreads_arr[%d] = %d\n", n, nthreads_arr[n]);
+            printf("dim = %d, nthreads = %d\n", dim, nthreads);
+            #endif
+
+            // Alocando memória:
+            mat1 = malloc(sizeof(int) * dim * dim);
+            mat2 = malloc(sizeof(int) * dim * dim);
+
+            seq_out = malloc(sizeof(int) * dim * dim);
+            conc_out = malloc(sizeof(int) * dim * dim);
+
+            nrange = malloc(sizeof(int) * nthreads);
+
+            if (!(mat1 && mat2 && seq_out && conc_out && nrange))
+            {
+               puts("Falha na alocacao de memoria");
+               return EXIT_FAILURE;
+            }
+
+            // Preenchendo nrange com os identificadores "internos"
+            // das threads:
+            for (int t=0; t < nthreads; t++)
+            {
+               nrange[t] = t;
+            }
+
+            // Preenchendo matrizes de entrada com inteiros aleatórios:
+
+            for (int i=0; i < dim; i++)
+            {
+               for (int j=0; j < dim; j++)
+               {
+                  #ifdef DEBUG
+                  mat1[i * dim + j] = i * dim + j;
+                  mat2[i * dim + j] = 1;
+                  #else
+                  mat1[i * dim + j] = rand();
+                  mat2[i * dim + j] = rand();
+                  #endif
+
+                  seq_out[i * dim + j] = 0;  // acumulador
+                  conc_out[i * dim + j] = 0;  // idem
+               }
+            }
+
+            #ifdef DEBUG
+            puts("Matrizes de entrada:\n");
+
+            display_matrix(dim, mat1);
+            display_matrix(dim, mat2);
+            #endif
+
+            // Criação das threads:
+
+            GET_TIME(t0);  // início da medição concorrente
+
+            tid = (pthread_t*) malloc(sizeof(pthread_t*) * nthreads);
+            
+            if (!tid)
+            {
+               puts("Falha na alocacao de memoria");
+               return EXIT_FAILURE;
+            }
+
+            for (int t=0; t < nthreads; t++)
+            {
+               if (pthread_create(&(tid[t]), NULL, conc_mat_mul, (void*) (nrange+t)))
+               {
+                  puts("Falha na criação das threads");
+                  return EXIT_FAILURE;
+               }
+            }
+
+            // Aguardando a execução de todas as threads:
+
+            for (int t=0; t < nthreads; t++)
+            {
+               pthread_join(tid[t], NULL);
+            }
+
+            GET_TIME(tf);  // fim da medição concorrente
+            
+            dt = tf - t0;
+
+            // #ifdef DEBUG
+            printf("Duracao da etapa concorrente: %lf segundos\n", dt);
+            // #endif
+
+            // Comparando com a multiplicação sequencial:
+            GET_TIME(t0);  // início da medição sequencial
+
+            seq_mat_mul(dim, mat1, mat2, seq_out);
+
+            GET_TIME(tf);  // fim da medição sequencial
+
+            dt = tf - t0;
+
+            // #ifdef DEBUG
+            printf("Duracao da etapa sequencial: %lf segundos\n", dt);
+            // #endif
+            
+            #ifndef DEBUG
+            if (verify_conc_soln(seq_out, conc_out)) { return EXIT_FAILURE; }
+
+            #else
+            puts("Resultado sequencial:\n");
+            display_matrix(dim, seq_out);
+
+            puts("\nResultado concorrente:\n");
+            display_matrix(dim, conc_out);
+            #endif
+
+            // Liberando a memória alocada:
+            free(mat1);
+            free(mat2);
+
+            free(seq_out);
+            free(conc_out);
+
+            free(nrange);
+         }
       }
    }
-
-   // Alocando memória:
-   mat1 = malloc(sizeof(int) * dim * dim);
-   mat2 = malloc(sizeof(int) * dim * dim);
-
-   int* seq_out = malloc(sizeof(int) * dim * dim);
-   conc_out = malloc(sizeof(int) * dim * dim);
-
-   int* nrange = malloc(sizeof(int) * nthreads);
-
-   if (!(mat1 && mat2 && seq_out && conc_out && nrange))
-   {
-      puts("Falha na alocação de memória");
-      return EXIT_FAILURE;
-   }
-
-   // Preenchendo nrange com os identificadores "internos"
-   // das threads:
-   for (int t=0; t < nthreads; t++)
-   {
-      nrange[t] = t;
-   }
-
-   // Preenchendo matrizes de entrada com inteiros aleatórios:
-
-   for (int i=0; i < dim; i++)
-   {
-      for (int j=0; j < dim; j++)
-      {
-         #ifdef DEBUG
-         mat1[i * dim + j] = i * dim + j;
-         mat2[i * dim + j] = 1;
-         #else
-         mat1[i * dim + j] = rand();
-         mat2[i * dim + j] = rand();
-         #endif
-
-         seq_out[i * dim + j] = 0;  // acumulador
-         conc_out[i * dim + j] = 0;  // idem
-      }
-   }
-
-   #ifdef DEBUG
-   puts("Matrizes de entrada:\n");
-
-   // display_matrix(dim, mat1);
-   // display_matrix(dim, mat2);
-   #endif
-
-   // Criação das threads:
-
-   GET_TIME(t0);  // início da medição concorrente
-
-   tid = (pthread_t*) malloc(sizeof(pthread_t*) * nthreads);
    
-   if (!tid)
-   {
-      puts("Falha na alocação de memória");
-      return EXIT_FAILURE;
-   }
 
-   for (int t=0; t < nthreads; t++)
-   {
-      if (pthread_create(&(tid[t]), NULL, conc_mat_mul, (void*) (nrange+t)))
-      {
-         puts("Falha na criação das threads");
-         return EXIT_FAILURE;
-      }
-   }
+   // for (int d=0; d < ndims; d++)
+   // {
+   //    for (int n=0; n < nnthr; n++)
+   //    {
 
-   // Aguardando a execução de todas as threads:
-
-   for (int t=0; t < nthreads; t++)
-   {
-      pthread_join(tid[t], NULL);
-   }
-
-   GET_TIME(tf);  // fim da medição concorrente
-   
-   dt = tf - t0;
-
-   #ifdef DEBUG
-   printf("Duracao da etapa concorrente: %lf segundos\n", dt);
-   #endif
-
-   // Comparando com a multiplicação sequencial:
-   GET_TIME(t0);  // início da medição sequencial
-
-   seq_mat_mul(dim, mat1, mat2, seq_out);
-
-   GET_TIME(tf);  // fim da medição sequencial
-
-   dt = tf - t0;
-
-   #ifdef DEBUG
-   printf("Duracao da etapa sequencial: %lf segundos\n", dt);
-   #endif
-   
-   #ifndef DEBUG
-   if (verify_conc_soln(seq_out, conc_out)) { return EXIT_FAILURE; }
-
-   #else
-   puts("Resultado sequencial:\n");
-   // display_matrix(dim, seq_out);
-
-   // puts("\nResultado concorrente:\n");
-   // display_matrix(dim, conc_out);
-   #endif
-
-   // Liberando a memória alocada:
-   free(mat1);
-   free(mat2);
-
-   free(seq_out);
-   free(conc_out);
-
-   free(nrange);
-
+   //    }
+   // }
 
    return EXIT_SUCCESS;
 }
