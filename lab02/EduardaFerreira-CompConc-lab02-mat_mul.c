@@ -8,7 +8,7 @@ Laboratório 2 -- Atividade 1
 #include <pthread.h>
 #include "timer.h"
 
-#define DEBUG
+// #define DEBUG
 
 // Variáveis globais:
 
@@ -28,7 +28,18 @@ void display_matrix(int dim, int* mat);
 
 void* conc_mat_mul(void* arg);
 
-// int verify_conc_soln();
+int verify_conc_soln(int* seq_out, int* conc_out);
+
+/* Obs: Sei que não seria necessário passar dim para as funções por se
+tratar de uma variável global; dim aparece como parâmetro por um
+"artefato histórico", por assim dizer. Eu segui a sequência sugerida 
+nas instruções do laboratório e comecei fazendo um programa sequencial,
+para servir como teste para a saída concorrente, então, de início, não
+trabalhei com variáveis globais. Quando introduzi a versão concorrente, 
+e com ela as variáveis globais, acabei "não mexendo" nas funções que
+já havia escrito anteriormente. Ao me dar conta disso, achei que não
+valia o refactor e a chance de introduzir um bug; deixei funcionando
+como estava. */
 
 // Fluxo da thread principal:
 
@@ -155,30 +166,11 @@ int main(int argc, char* argv[])
       pthread_join(tid[t], NULL);
    }
 
-   // Comparando com amultiplicação sequencial:
+   // Comparando com a multiplicação sequencial:
    seq_mat_mul(dim, mat1, mat2, seq_out);
    
    #ifndef DEBUG
-   for (int i=0; i < dim; i++)
-   {
-      for (int j=0; j < dim; j++)
-      {
-         int idx = i * dim + j;
-
-         if (seq_out[idx] != conc_out[idx])
-         {
-            printf("Falha no programa concorrente: ");
-            printf("resultado diferente da multiplicacao sequencial\n");
-
-            printf("\nPrimeira divergencia: linha %d, coluna %d\n", i, j);
-
-            printf("Resultado sequencial: %d\n", seq_out[idx]);
-            printf("Resultado concorrente: %d\n", conc_out[idx]);
-
-            return EXIT_FAILURE;
-         }
-      }
-   }
+   if (verify_conc_soln(seq_out, conc_out)) { return EXIT_FAILURE; }
 
    #else
    puts("Resultado sequencial:\n");
@@ -268,4 +260,32 @@ void display_matrix(int dim, int* mat)
    }
 
    puts("");
+}
+
+int verify_conc_soln(int* seq_out, int* conc_out)
+/* Verifica a solução concorrente por meio da comparação com
+a saída da função sequencial. */
+{
+   for (int i=0; i < dim; i++)
+   {
+      for (int j=0; j < dim; j++)
+      {
+         int idx = i * dim + j;
+
+         if (seq_out[idx] != conc_out[idx])
+         {
+            printf("Falha no programa concorrente: ");
+            printf("resultado diferente da multiplicacao sequencial\n");
+
+            printf("\nPrimeira divergencia: linha %d, coluna %d\n", i, j);
+
+            printf("Resultado sequencial: %d\n", seq_out[idx]);
+            printf("Resultado concorrente: %d\n", conc_out[idx]);
+
+            return 1;
+         }
+      }
+   }
+   
+   return 0;
 }
