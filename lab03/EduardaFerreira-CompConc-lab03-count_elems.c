@@ -35,7 +35,14 @@ void init_vec(float* vec, int nelem);
 // Fluxo da thread principal:
 
 int main(int argc, char* argv[])
-{  
+{
+   srand(time(NULL));
+
+   #ifdef DEBUG
+   printf("Beginning execution\n");
+   printf("sizeof(float) = %llu\n\n", sizeof(float));
+   #endif
+
    if (argc == 5)
    { 
       nelem = atoll(argv[1]);
@@ -116,6 +123,19 @@ void init_vec(float* vec, int nelem)
 {
    for (int i=0; i < nelem; i++)
    {
-      *(vec + i) = (float) i;
+      int r = rand();
+      if (!r) { *(vec + i) = (float) 0; }
+      else { *(vec + i) = 1000000000.0 / r; }
+
+      // Não foi especificado como deveríamos gerar os floats; por
+      // experimentação, observei que, dessa forma, tinha partes
+      // inteiras não todas zero, mas com casas decimais o suficiente
+      // para observar a diferença no erro numérico entre os casos
+      // sequencial e concorrente (diferentemente do que acontece, por
+      // exemplo, ao se dividir por uma constante).
+
+      #ifdef DEBUG
+      printf("r = %d, *(vec + %d) = %.20f\n", r, i, *(vec + i));
+      #endif
    }
 }
