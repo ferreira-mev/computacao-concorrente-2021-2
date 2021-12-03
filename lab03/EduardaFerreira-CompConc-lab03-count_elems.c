@@ -474,12 +474,46 @@ lower_bound < vec[i] < upper_bound. */
    *thread_count = 2;  // temporário; para testar
 
    long long int chunk_size = nelem / (long long int) nthreads;
+   long long int init_pos = id * chunk_size;
+   long long int end_pos;
+   
+   if (id == nthreads - 1) { end_pos = nelem; }
+   else { end_pos = (id + 1) * chunk_size; }
 
    #ifdef DEBUG
    if (!id)
    {
       printf("Computed chunk size: %lld\n", chunk_size);
    }
+   printf("Looping over positions %lld to %lld\n", init_pos, end_pos);
+   #endif
+
+   for (int pos = init_pos; pos < end_pos; pos++)
+   {
+      #ifdef DEBUG
+      printf("Found element %lld: %f", pos, *(vec + pos));
+      #endif
+
+      if
+      (
+         (*(vec + pos) > (float) lower_bound) &&
+         (*(vec + pos) < (float) upper_bound)
+      )
+      {
+         (*thread_count)++;
+
+         #ifdef DEBUG
+         printf("; match! Thread %d count updated to %lld", id, *thread_count);
+         #endif
+      }
+      
+      #ifdef DEBUG
+      puts("");
+      #endif
+   }
+
+   #ifdef DEBUG
+   printf("Final position reached; thread %d total: %lld\n\n", id, *thread_count);
    #endif
 
    pthread_exit((void*) thread_count);
