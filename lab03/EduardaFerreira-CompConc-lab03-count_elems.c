@@ -22,13 +22,15 @@ long long int upper_bound;
 
 int nthreads;
 
-int* vec;
+float* vec;
 
 // Cabeçalhos de funções:
 
-void display_vec(int* vec, int nelem);
+void* safe_malloc(size_t size);
 
-void init_vec(int* vec);
+void display_vec(float* vec, int nelem);
+
+void init_vec(float* vec, int nelem);
 
 // Fluxo da thread principal:
 
@@ -68,14 +70,52 @@ int main(int argc, char* argv[])
 
       return EXIT_FAILURE;
    }
+
+   vec = (float*) safe_malloc(sizeof(float) * nelem);
+
+   init_vec(vec, nelem);
+
+   display_vec(vec, nelem);
+
+   free(vec);
    
    return EXIT_SUCCESS;
 }
 
 // Definições de funções:
 
-void display_vec(int* vec, int nelem)
-/* Imprime um vetor vec de nelem elementos. */
+void* safe_malloc(size_t size)
+/* "Wrap" para a função malloc com verificação de falha na alocação. */
 {
+   void* ptr = malloc(size);
 
+   if (!ptr)
+   {
+      puts("Falha na alocacao de memoria");
+      exit(EXIT_FAILURE);
+   }
+
+   return ptr;
+}
+
+void display_vec(float* vec, int nelem)
+/* Imprime um vetor vec de nelem elementos do tipo float. */
+{
+   puts("");
+
+   for (int i=0; i < nelem; i++)
+   {
+      printf("%f ", *(vec + i));
+   }
+
+   puts("");
+}
+
+void init_vec(float* vec, int nelem)
+/* Inicializa um vetor de nelem floats com entradas aleatórias. */
+{
+   for (int i=0; i < nelem; i++)
+   {
+      *(vec + i) = (float) i;
+   }
 }
