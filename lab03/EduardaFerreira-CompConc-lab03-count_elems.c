@@ -70,7 +70,6 @@ int main(int argc, char* argv[])
    int* id_range;
    pthread_t* tid;
    int* thread_out;
-   int conc_count = 0;
 
    long long int* nelem_arr;
    int* nthreads_arr;
@@ -167,9 +166,9 @@ int main(int argc, char* argv[])
    else if (argc == 3)
    { 
       #ifdef DEBUG
-      nelem_arr[0] = 3;
-      nelem_arr[1] = 5;
-      nelem_arr[2] = 10;
+      nelem_arr[0] = 10;
+      nelem_arr[1] = 11;
+      nelem_arr[2] = 100;
 
       puts("Elementos de nelem_arr:");
       display_llvec(nelem_arr, n_nelem);
@@ -253,6 +252,8 @@ int main(int argc, char* argv[])
          // p/ cada valor do número de threads
          {
             GET_TIME(t0);  // etapa concorrente
+
+            int conc_count = 0;
 
             nthreads = nthreads_arr[t];
 
@@ -462,13 +463,23 @@ upper_bound, exclusive; i.e., vec[i] é contado se
 lower_bound < vec[i] < upper_bound. */
 {
    int id = *((int*) arg);
+
+   #ifdef DEBUG
+   printf("Function call for thread %d\n", id);
+   #endif
+
    long long int* thread_count;
 
    thread_count = (long long int*) safe_malloc(sizeof(long long int));
    *thread_count = 2;  // temporário; para testar
 
+   long long int chunk_size = nelem / (long long int) nthreads;
+
    #ifdef DEBUG
-   printf("Function call for thread %d\n", id);
+   if (!id)
+   {
+      printf("Computed chunk size: %lld\n", chunk_size);
+   }
    #endif
 
    pthread_exit((void*) thread_count);
