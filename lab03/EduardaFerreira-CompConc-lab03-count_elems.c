@@ -14,8 +14,8 @@ Laboratório 3 -- Atividade 1
 // Variáveis globais:
 
 long long int nelem;
-long long int lower_bound;
-long long int upper_bound;
+int lower_bound;
+int upper_bound;
 
 // Estou usando limiares inteiros para evitar o problema de ler
 // floats
@@ -34,7 +34,13 @@ void display_llvec(long long int* vec, long long int nelem);
 
 void init_vec(float* vec, long long int nelem);
 
-// int seq_count_bounds(float* vec, long long int nelem);
+long long int seq_bound_counter
+(
+   float* vec,
+   long long int nelem,
+   int lower_bound,
+   int upper_bound
+);
 
 /* Mais ou menos em linha com um comentário que eu havia feito no
 laboratório 2, nem todos esses parâmetros precisariam ser parâmetros,
@@ -68,6 +74,8 @@ int main(int argc, char* argv[])
    int n_nthreads;
    int n_runs;
 
+   double t0, tf, dt;  // instantes inicial e final, e duração
+
    // Lendo e processando os parâmetros passados pela
    // linha de comando:
 
@@ -85,20 +93,20 @@ int main(int argc, char* argv[])
       n_runs = 5;
       #endif
 
-      lower_bound = atoll(argv[1]);
-      upper_bound = atoll(argv[2]);
+      lower_bound = atoi(argv[1]);
+      upper_bound = atoi(argv[2]);
 
       #ifdef DEBUG
-      printf("lower_bound = %lld\n", lower_bound);
-      printf("upper_bound = %lld\n", upper_bound);
+      printf("lower_bound = %d\n", lower_bound);
+      printf("upper_bound = %d\n", upper_bound);
       #endif
 
    }
    else if (argc == 5)
    { 
       nelem = atoll(argv[1]);
-      lower_bound = atoll(argv[2]);
-      upper_bound = atoll(argv[3]);
+      lower_bound = atoi(argv[2]);
+      upper_bound = atoi(argv[3]);
       nthreads = atoi(argv[4]);
 
       n_nelem = 1;
@@ -107,8 +115,8 @@ int main(int argc, char* argv[])
 
       #ifdef DEBUG
       printf("nelem = %lld\n", nelem);
-      printf("lower_bound = %lld\n", lower_bound);
-      printf("upper_bound = %lld\n", upper_bound);
+      printf("lower_bound = %d\n", lower_bound);
+      printf("upper_bound = %d\n", upper_bound);
       printf("nthreads = %d\n", nthreads);
       #endif
 
@@ -202,12 +210,39 @@ int main(int argc, char* argv[])
       display_fvec(vec, nelem);
       #endif
 
+      long long int seq_count = -1;
+
       for (int r=0; r < n_runs; r++)
       // p/ cada repetição da medição
       {
          #ifdef DEBUG
          printf("Beginning run %d\n", r + 1);
          #endif
+
+         long long int seq_count_r;
+
+         GET_TIME(t0);
+
+         seq_count_r = seq_bound_counter(vec, nelem, lower_bound, upper_bound);
+
+         GET_TIME(tf);
+         dt = tf - t0;
+
+         #ifdef DEBUG
+         printf("Sequential execution time: %lf s\n\n", dt);
+         #endif
+
+         if (seq_count == -1)
+         { 
+            seq_count = seq_count_r;
+
+            // Não sei se faz diferença, mas pensei que poderia ser
+            // melhor comparar todas as saídas concorrentes com a
+            // mesma saída sequencial. P/ cada tamanho de vetor,
+            // a contagem sequencial é armazenada apenas na primeira
+            // execução; as seguintes são apenas para repetir a
+            // medição de tempo, cf. solicitado nas instruções.
+         }
 
          for (int t=0; t < n_nthreads; t++)
          // p/ cada valor do número de threads
@@ -290,6 +325,10 @@ void display_llvec(long long int* vec, long long int nelem)
 void init_vec(float* vec, long long int nelem)
 /* Inicializa um vetor de nelem floats com entradas aleatórias. */
 {
+   #ifdef DEBUG
+   printf("\nInitializing random vector of size %lld\n", nelem);
+   #endif
+
    for (long long int i=0; i < nelem; i++)
    {
       int r = rand();
@@ -307,4 +346,53 @@ void init_vec(float* vec, long long int nelem)
       printf("r = %d, *(vec + %lld) = %.20f\n", r, i, *(vec + i));
       #endif
    }
+}
+
+long long int seq_bound_counter
+(
+   float* vec,
+   long long int nelem,
+   int lower_bound,
+   int upper_bound
+)
+/* Função sequencial para contar o número de entradas do vetor de floats
+vec, de comprimento nelem, que estão entre lower_bound e upper_bound, 
+exclusive; i.e., vec[i] é contado se
+lower_bound < vec[i] < upper_bound. */
+{
+   long long int count = 0;
+
+   #ifdef DEBUG
+   printf("\nRunning sequential count\n");
+   #endif
+
+   for (long long int i = 0; i < nelem; i++)
+   {
+      #ifdef DEBUG
+      printf("Found element %lld: %f", i, *(vec + i));
+      #endif
+
+      if
+      (
+         (*(vec + i) > (float) lower_bound) &&
+         (*(vec + i) < (float) upper_bound)
+      )
+      {
+         count++;
+
+         #ifdef DEBUG
+         printf("; match! Count updated to %lld", count);
+         #endif
+      }
+      
+      #ifdef DEBUG
+      puts("");
+      #endif
+   }
+
+   #ifdef DEBUG
+   puts("End of vector reached\n");
+   #endif
+
+   return count;
 }
