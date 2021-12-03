@@ -319,6 +319,7 @@ int main(int argc, char* argv[])
             }
             #endif
 
+            free(id_range);
          } // p/ cada valor do número de threads
 
       } // p/ cada repetição da medição
