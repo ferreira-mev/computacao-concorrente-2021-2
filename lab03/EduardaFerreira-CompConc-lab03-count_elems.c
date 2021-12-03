@@ -21,7 +21,6 @@ int upper_bound;
 // floats
 
 int nthreads;
-
 float* vec;
 
 // Cabeçalhos de funções:
@@ -34,14 +33,6 @@ void display_llvec(long long int* vec, long long int nelem);
 
 void init_vec(float* vec, long long int nelem);
 
-long long int seq_bound_counter
-(
-   float* vec,
-   long long int nelem,
-   int lower_bound,
-   int upper_bound
-);
-
 /* Mais ou menos em linha com um comentário que eu havia feito no
 laboratório 2, nem todos esses parâmetros precisariam ser parâmetros,
 já que estou usando variáveis globais, devido à concorrência. No 
@@ -49,7 +40,13 @@ início, os parâmetros acabaram entrando só pelo hábito de não usar esse
 tipo de variável, mas depois pensei um pouco e concluí que achava mais
 legível/organizado com os parâmetros ali, quando possível; fica mais
 imediato quais variáveis estão sendo acessadas ou potencialmente
-modificadas. */
+modificadas. 
+
+No caso da contagem sequencial, no entanto, preferi acessar as
+variáveis globais diretamente, para tornar a comparação com a contagem
+concorrente mais fiel. */
+
+long long int seq_bound_counter();
 
 // Fluxo da thread principal:
 
@@ -349,13 +346,7 @@ void init_vec(float* vec, long long int nelem)
    }
 }
 
-long long int seq_bound_counter
-(
-   float* vec,
-   long long int nelem,
-   int lower_bound,
-   int upper_bound
-)
+long long int seq_bound_counter()
 /* Função sequencial para contar o número de entradas do vetor de floats
 vec, de comprimento nelem, que estão entre lower_bound e upper_bound, 
 exclusive; i.e., vec[i] é contado se
