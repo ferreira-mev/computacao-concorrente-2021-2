@@ -87,6 +87,14 @@ int main(int argc, char* argv[])
       n_runs = 5;
       #endif
 
+      lower_bound = atoll(argv[1]);
+      upper_bound = atoll(argv[2]);
+
+      #ifdef DEBUG
+      printf("lower_bound = %lld\n", lower_bound);
+      printf("upper_bound = %lld\n", upper_bound);
+      #endif
+
    }
    else if (argc == 5)
    { 
