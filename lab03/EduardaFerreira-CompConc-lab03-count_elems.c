@@ -47,6 +47,7 @@ variáveis globais diretamente, para tornar a comparação com a contagem
 concorrente mais fiel. */
 
 long long int seq_bound_counter();
+void* conc_bound_counter(void* arg);
 
 // Fluxo da thread principal:
 
@@ -63,6 +64,9 @@ int main(int argc, char* argv[])
 
    printf("\nsizeof(float) = %llu\n\n", sizeof(float));
    #endif
+
+   int* id_range;
+   pthread_t* tid;
 
    long long int* nelem_arr;
    int* nthreads_arr;
@@ -249,6 +253,33 @@ int main(int argc, char* argv[])
             #ifdef DEBUG
             printf("Beginning iteration: nthreads = %d\n", nthreads);
             #endif
+
+            id_range = (int*) safe_malloc(sizeof(int) * nthreads);
+
+            // Preenchendo id_range com os identificadores "internos"
+            // das threads:
+            for (int t=0; t < nthreads; t++)
+            {
+               id_range[t] = t;
+            }
+
+            #ifdef DEBUG
+            printf("\nid_range: ");
+            display_dvec(id_range, (long long int) nthreads);
+            #endif
+
+            // Criando as threads:
+            tid = (pthread_t*) safe_malloc(sizeof(pthread_t*) * nthreads);
+
+            for (int t=0; t < nthreads; t++)
+            {
+               if (pthread_create(tid + t, NULL, conc_bound_counter, (void*) (id_range + t)))
+               {
+                  puts("Falha na criacao das threads");
+                  return EXIT_FAILURE;
+               }
+            }
+
          } // p/ cada valor do número de threads
 
       } // p/ cada repetição da medição
@@ -387,4 +418,17 @@ lower_bound < vec[i] < upper_bound. */
    #endif
 
    return count;
+}
+
+void* conc_bound_counter(void* arg)
+/* Função concorrente para contar o número de entradas do vetor de 
+floats vec, de comprimento nelem, que estão entre lower_bound e 
+upper_bound, exclusive; i.e., vec[i] é contado se
+lower_bound < vec[i] < upper_bound. */
+{
+   int id = *((int*) arg);
+
+   #ifdef DEBUG
+   printf("Function call for thread %d\n", id);
+   #endif
 }
