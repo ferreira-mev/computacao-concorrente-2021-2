@@ -260,7 +260,8 @@ int main(int argc, char* argv[])
    } // p/ cada comprimento do vetor
    
 
-   
+   free(nelem_arr);
+   free(nthreads_arr);
    
    return EXIT_SUCCESS;
 }
