@@ -248,6 +248,8 @@ int main(int argc, char* argv[])
          for (int t=0; t < n_nthreads; t++)
          // p/ cada valor do número de threads
          {
+            GET_TIME(t0);  // etapa concorrente
+
             nthreads = nthreads_arr[t];
 
             #ifdef DEBUG
@@ -280,6 +282,12 @@ int main(int argc, char* argv[])
                }
             }
 
+            GET_TIME(tf);  // etapa concorrente
+            dt = tf - t0;
+
+            #ifdef DEBUG
+            printf("Concurrent execution time (%d threads): %lf s\n\n", nthreads, dt);
+            #endif
          } // p/ cada valor do número de threads
 
       } // p/ cada repetição da medição
