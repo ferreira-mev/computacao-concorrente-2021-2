@@ -62,11 +62,15 @@ int main(int argc, char* argv[])
       printf("%s ", argv[i]);
    }
 
-   printf("\nsizeof(float) = %llu\n\n", sizeof(float));
+   printf("\nsizeof(float) = %llu\n", sizeof(float));
+   printf("\nsizeof(long long int) = %llu\n", sizeof(long long int));
+   printf("\nsizeof(void*) = %llu\n\n", sizeof(void*));
    #endif
 
    int* id_range;
    pthread_t* tid;
+   int* thread_out;
+   int conc_count = 0;
 
    long long int* nelem_arr;
    int* nthreads_arr;
@@ -277,10 +281,33 @@ int main(int argc, char* argv[])
             {
                if (pthread_create(tid + t, NULL, conc_bound_counter, (void*) (id_range + t)))
                {
-                  puts("Falha na criacao das threads");
+                  fprintf(stderr, "Falha na criacao das threads");
                   return EXIT_FAILURE;
                }
             }
+
+            for (int t=0; t < nthreads; t++)
+            {
+               if (pthread_join(*(tid + t), (void**) &thread_out))
+               {
+                  fprintf(stderr, "Falha na sincronizacao das threads");
+                  return EXIT_FAILURE;
+               }
+
+               int thread_count = *thread_out;
+
+               free(thread_out);
+
+               #ifdef DEBUG
+               printf("Thread %d returned %d\n", t, thread_count);
+               #endif
+
+               conc_count += thread_count;
+            }
+            
+            #ifdef DEBUG
+            printf("Sum over all threads: %d\n", conc_count);
+            #endif
 
             GET_TIME(tf);  // etapa concorrente
             dt = tf - t0;
@@ -435,8 +462,14 @@ upper_bound, exclusive; i.e., vec[i] é contado se
 lower_bound < vec[i] < upper_bound. */
 {
    int id = *((int*) arg);
+   long long int* thread_count;
+
+   thread_count = (long long int*) safe_malloc(sizeof(long long int));
+   *thread_count = 2;  // temporário; para testar
 
    #ifdef DEBUG
    printf("Function call for thread %d\n", id);
    #endif
+
+   pthread_exit((void*) thread_count);
 }
