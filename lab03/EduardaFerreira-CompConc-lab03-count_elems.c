@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
       #ifdef DEBUG
       nelem_arr[0] = 10;
       nelem_arr[1] = 11;
-      nelem_arr[2] = 100;
+      nelem_arr[2] = 12;
 
       puts("Elementos de nelem_arr:");
       display_llvec(nelem_arr, n_nelem);
@@ -223,30 +223,17 @@ int main(int argc, char* argv[])
          printf("Beginning run %d\n", r + 1);
          #endif
 
-         long long int seq_count_r;
-
          GET_TIME(t0);
 
-         seq_count_r = seq_bound_counter(vec, nelem, lower_bound, upper_bound);
+         seq_count = seq_bound_counter(vec, nelem, lower_bound, upper_bound);
 
          GET_TIME(tf);
          dt = tf - t0;
 
          #ifdef DEBUG
          printf("Sequential execution time: %lf s\n\n", dt);
+         printf("Sequential result: %d\n", seq_count);
          #endif
-
-         if (seq_count == -1)
-         { 
-            seq_count = seq_count_r;
-
-            // Não sei se faz diferença, mas pensei que poderia ser
-            // melhor comparar todas as saídas concorrentes com a
-            // mesma saída sequencial. P/ cada tamanho de vetor,
-            // a contagem sequencial é armazenada apenas na primeira
-            // execução; as seguintes são apenas para repetir a
-            // medição de tempo, cf. solicitado nas instruções.
-         }
 
          for (int t=0; t < n_nthreads; t++)
          // p/ cada valor do número de threads
@@ -316,6 +303,22 @@ int main(int argc, char* argv[])
             #ifdef DEBUG
             printf("Concurrent execution time (%d threads): %lf s\n\n", nthreads, dt);
             #endif
+
+            long long int delta = seq_count - conc_count;
+
+            #ifdef DEBUG
+            printf("seq_out - conc_out = %lld\n", delta);
+            #else
+            if (delta)
+            {
+               fprintf(stderr, "\nFalha no programa concorrente: a");
+               fprintf(stderr, " contagem de elementos\ndivergiu da ");
+               fprintf(stderr, "do programa sequencial em %d\n", delta);
+
+               return EXIT_FAILURE;
+            }
+            #endif
+
          } // p/ cada valor do número de threads
 
       } // p/ cada repetição da medição
@@ -471,7 +474,7 @@ lower_bound < vec[i] < upper_bound. */
    long long int* thread_count;
 
    thread_count = (long long int*) safe_malloc(sizeof(long long int));
-   *thread_count = 2;  // temporário; para testar
+   *thread_count = 0;
 
    long long int chunk_size = nelem / (long long int) nthreads;
    long long int init_pos = id * chunk_size;
@@ -491,7 +494,7 @@ lower_bound < vec[i] < upper_bound. */
    for (int pos = init_pos; pos < end_pos; pos++)
    {
       #ifdef DEBUG
-      printf("Found element %lld: %f", pos, *(vec + pos));
+      printf("Thread %d found element %lld: %f\n", id, pos, *(vec + pos));
       #endif
 
       if
@@ -503,7 +506,7 @@ lower_bound < vec[i] < upper_bound. */
          (*thread_count)++;
 
          #ifdef DEBUG
-         printf("; match! Thread %d count updated to %lld", id, *thread_count);
+         printf("Thread %d match! Count updated to %lld\n", id, *thread_count);
          #endif
       }
       
