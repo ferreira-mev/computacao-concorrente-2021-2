@@ -32,6 +32,7 @@ void* safe_malloc(size_t size);
 
 void display_fvec(float* vec, long long int nelem);
 void display_dvec(int* vec, long long int nelem);
+void display_llvec(long long int* vec, long long int nelem);
 
 void init_vec(float* vec, long long int nelem);
 
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
       n_nthreads = 4;
 
       #ifdef DEBUG
-      n_runs = 1;
+      n_runs = 2;
       #else
       n_runs = 5;
       #endif
@@ -111,8 +112,6 @@ int main(int argc, char* argv[])
          printf("numero de elementos (%d) e sera reduzido para %d\n\n", nelem, nelem);
 
          nthreads = nelem;
-         // (Eu podia só usar um min entre dim e nthreads, mas eu queria
-         // o if para avisar ao usuário)
       }
    }
    else
@@ -135,6 +134,9 @@ int main(int argc, char* argv[])
    printf("\nn_nelem = %d, n_nthreads = %d, n_runs = %d\n", n_nelem, n_nthreads, n_runs);
    #endif
 
+   // Preenchendo os arrays com os números de elementos e threads a
+   // serem usados:
+
    nelem_arr = safe_malloc(sizeof(long long int) * n_nelem);
    nthreads_arr = safe_malloc(sizeof(int) * n_nthreads);
 
@@ -150,17 +152,52 @@ int main(int argc, char* argv[])
       nelem_arr[1] = 5;
       nelem_arr[2] = 10;
 
-      display_dvec(nelem_arr, n_nelem);
-
-      // TODO: tf does this print nelem_arr[0] 0 nelem_arr[1]?
+      puts("Elementos de nelem_arr:");
+      display_llvec(nelem_arr, n_nelem);
 
       #else
       nelem_arr[0] = (int) pow(10, 5);
       nelem_arr[1] = (int) pow(10, 7);
       nelem_arr[2] = (int) pow(10, 8);
       #endif
+
+      int n0 = 1;
+
+      for (int n=0; n < n_nthreads; n++)
+      {
+         nthreads_arr[n] = n0;
+         n0 *= 2;
+      }
+
+      #ifdef DEBUG
+      puts("Elementos de nthreads_arr:");
+      display_dvec(nthreads_arr, n_nthreads);
+      #endif
    }
 
+
+   for (int n=0; n < n_nelem; n++)
+   // p/ cada comprimento do vetor
+   {
+      nelem = nelem_arr[n];
+
+      for (int r=0; r < n_runs; r++)
+      // p/ cada repetição da medição
+      {
+         for (int t=0; t < n_nthreads; t++)
+         // p/ cada valor do número de threads
+         {
+            nthreads = nthreads_arr[t];
+
+            #ifdef DEBUG
+            printf("Run %d with ", r + 1);
+            printf("nelem = %lld, nthreads = %d\n", nelem, nthreads);
+            #endif
+         }
+
+      }
+
+   }
    // Inicializando o vetor de nelem floats aleatórios:
 
    vec = (float*) safe_malloc(sizeof(float) * nelem);
@@ -217,6 +254,21 @@ void display_dvec(int* vec, long long int nelem)
 
    puts("");
 }
+
+void display_llvec(long long int* vec, long long int nelem)
+/* Imprime um vetor vec de nelem elementos do tipo long long int. */
+{
+   puts("");
+
+   for (long long int i=0; i < nelem; i++)
+   {
+      printf("%lld ", *(vec + i));
+   }
+
+   puts("");
+}
+
+// (e aqui eu queria que o C tivesse o overloading do C++ :P)
 
 void init_vec(float* vec, long long int nelem)
 /* Inicializa um vetor de nelem floats com entradas aleatórias. */
