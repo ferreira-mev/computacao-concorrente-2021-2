@@ -22,8 +22,6 @@ long long int upper_bound;
 
 int nthreads;
 
-
-
 float* vec;
 
 // Cabeçalhos de funções:
@@ -189,34 +187,45 @@ int main(int argc, char* argv[])
    {
       nelem = nelem_arr[n];
 
+      #ifdef DEBUG
+      printf("\nBeginning iteration: nelem = %lld\n", nelem);
+      #endif
+
+      // Inicializando o vetor de nelem floats aleatórios:
+
+      vec = (float*) safe_malloc(sizeof(float) * nelem);
+
+      init_vec(vec, nelem);
+
+      #ifdef DEBUG
+      printf("\nRandom vector of length %lld:", nelem);
+      display_fvec(vec, nelem);
+      #endif
+
       for (int r=0; r < n_runs; r++)
       // p/ cada repetição da medição
       {
+         #ifdef DEBUG
+         printf("Beginning run %d\n", r + 1);
+         #endif
+
          for (int t=0; t < n_nthreads; t++)
          // p/ cada valor do número de threads
          {
             nthreads = nthreads_arr[t];
 
             #ifdef DEBUG
-            printf("Run %d with ", r + 1);
-            printf("nelem = %lld, nthreads = %d\n", nelem, nthreads);
+            printf("Beginning iteration: nthreads = %d\n", nthreads);
             #endif
-         }
+         } // p/ cada valor do número de threads
 
-      }
+      } // p/ cada repetição da medição
 
-   }
-   // Inicializando o vetor de nelem floats aleatórios:
+      free(vec);
+   } // p/ cada comprimento do vetor
+   
 
-   vec = (float*) safe_malloc(sizeof(float) * nelem);
-
-   init_vec(vec, nelem);
-
-   #ifdef DEBUG
-   display_fvec(vec, nelem);
-   #endif
-
-   free(vec);
+   
    
    return EXIT_SUCCESS;
 }
@@ -240,7 +249,7 @@ void* safe_malloc(size_t size)
 void display_fvec(float* vec, long long int nelem)
 /* Imprime um vetor vec de nelem elementos do tipo float. */
 {
-   puts("");
+   // puts("");
 
    for (long long int i=0; i < nelem; i++)
    {
@@ -253,7 +262,7 @@ void display_fvec(float* vec, long long int nelem)
 void display_dvec(int* vec, long long int nelem)
 /* Imprime um vetor vec de nelem elementos do tipo int. */
 {
-   puts("");
+   // puts("");
 
    for (long long int i=0; i < nelem; i++)
    {
@@ -266,7 +275,7 @@ void display_dvec(int* vec, long long int nelem)
 void display_llvec(long long int* vec, long long int nelem)
 /* Imprime um vetor vec de nelem elementos do tipo long long int. */
 {
-   puts("");
+   // puts("");
 
    for (long long int i=0; i < nelem; i++)
    {
