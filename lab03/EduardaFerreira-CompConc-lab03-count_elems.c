@@ -9,7 +9,7 @@ Laboratório 3 -- Atividade 1
 #include <math.h>
 #include "../lab02/timer.h"
 
-#define DEBUG
+// #define DEBUG
 
 // Variáveis globais:
 
@@ -98,8 +98,8 @@ int main(int argc, char* argv[])
 
    if (argc == 3)
    {
-      puts("Dois argumentos passados; entrando em modo de avaliacao");
-      puts("de desempenho");
+      printf("Dois argumentos passados; entrando em modo de avaliacao");
+      printf(" de desempenho");
 
       n_nelem = 3;
       n_nthreads = 4;
@@ -255,7 +255,6 @@ int main(int argc, char* argv[])
          {
             t_seq[n] = dt;
          }
-         
 
          #ifdef DEBUG
          printf("Sequential execution time: %lf s\n\n", dt);
