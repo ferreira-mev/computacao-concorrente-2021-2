@@ -4,7 +4,7 @@ Eu já tenho um arquivo README na raiz do repositório, então estou usando um n
 
 Mais informações sobre o processador utilizado estão no relatório do laboratório 2, conforme havia sido solicitado, mas é um Intel Core i7-7700HQ com 4 cores físicos, elevados a 8 cores virtuais por meio de hyperthreading. Assim como no laboratório 2, decidi efetuar as medidas também com 8 threads, por essa razão.
 
-## Medições de T_sequencial/T_concorrente, em segundos
+## Medições de T_sequencial/T_concorrente, ambos em segundos
 
 Estou incluindo as saídas de duas execuções diferentes, a título de comparação.
 
