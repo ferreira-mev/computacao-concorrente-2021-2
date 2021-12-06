@@ -9,7 +9,7 @@ Laboratório 3 -- Atividade 1
 #include <math.h>
 #include "../lab02/timer.h"
 
-// #define DEBUG
+#define DEBUG
 
 // Variáveis globais:
 
@@ -65,8 +65,9 @@ int main(int argc, char* argv[])
    }
 
    printf("\nsizeof(float) = %llu\n", sizeof(float));
-   printf("\nsizeof(long long int) = %llu\n", sizeof(long long int));
-   printf("\nsizeof(void*) = %llu\n\n", sizeof(void*));
+   printf("sizeof(long long int) = %llu\n", sizeof(long long int));
+   printf("sizeof(void*) = %llu\n", sizeof(void*));
+   printf("RAND_MAX = %lld\n\n", RAND_MAX);
    #endif
 
    int* id_range;
@@ -548,18 +549,28 @@ void init_rvec(float* vec, long long int nelem)
    printf("\nInitializing random vector of size %lld\n", nelem);
    #endif
 
+   float val;
+
    for (long long int i=0; i < nelem; i++)
    {
       int r = rand();
-      if (!r) { *(vec + i) = (float) 0; }
-      else { *(vec + i) = 1000000000.0 / r; }
+      if (!r) { val = (float) 0; }
+      else { val = 1000000000.0 / r; }
 
       // Não foi especificado como deveríamos gerar os floats; por
       // experimentação, observei que, dessa forma, tinha partes
-      // inteiras não todas zero, mas com casas decimais o suficiente
-      // para observar a diferença no erro numérico entre os casos
-      // sequencial e concorrente (diferentemente do que acontece, por
-      // exemplo, ao se dividir por uma constante).
+      // inteiras não todas zero, mas com casas decimais até o limite
+      // da precisão (diferentemente do que acontece, por exemplo, ao se
+      // dividir o inteiro retornado por rand() por uma constante).
+
+      // Randomizando o sinal, para ficar mais interessante (rand() 
+      // retorna apenas inteiros positivos):
+
+      int s = rand();
+      
+      if (s >= RAND_MAX / 2) { val *= -1.0; }
+
+      *(vec + i) = val;
 
       #ifdef DEBUG
       printf("r = %d, *(vec + %lld) = %.20f\n", r, i, *(vec + i));
