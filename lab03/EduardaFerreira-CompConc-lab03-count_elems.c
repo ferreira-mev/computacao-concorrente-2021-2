@@ -28,6 +28,7 @@ float* vec;
 void* safe_malloc(size_t size);
 
 void display_fvec(float* vec, long long int nelem);
+void display_ffvec(double* vec, long long int nelem);
 void display_dvec(int* vec, long long int nelem);
 void display_llvec(long long int* vec, long long int nelem);
 
@@ -85,9 +86,12 @@ int main(int argc, char* argv[])
 
    double* t_seq;
    double* t_conc;
-   // Linhas: dimensão
+   // Linhas: comprimento do vetor
    // Colunas: número de threads
 
+   int idx;
+
+   char csv_name[] = "perf_gains.csv";
    
    // Lendo e processando os parâmetros passados pela
    // linha de comando:
@@ -170,10 +174,8 @@ int main(int argc, char* argv[])
    t_seq = (double*) safe_malloc(sizeof(double) * n_nelem);
    t_conc = (double*) safe_malloc(sizeof(double) * n_nelem * n_nthreads);
 
-   // TODO (was interrupted): init w/ zeroes; add lowest dt val for each; out to csv; calc ratio (or calc & out?)
-
    init_vec(t_seq, n_nelem, -1);
-   init_vec(t_conc, n_nelem, -1);
+   init_vec(t_conc, n_nelem * n_nthreads, -1);
 
    if (argc == 5)
    {
@@ -240,14 +242,20 @@ int main(int argc, char* argv[])
          printf("Beginning run %d\n", r + 1);
          #endif
 
-         GET_TIME(t0);
+         GET_TIME(t0);  // etapa sequencial
 
          seq_count = seq_bound_counter(vec, nelem, lower_bound, upper_bound);
 
-         GET_TIME(tf);
+         GET_TIME(tf);  // etapa sequencial
          dt = tf - t0;
 
-         t_seq[n] = dt;
+         if (t_seq[n] < 0 || t_seq[n] > dt)
+         // inicializado com -1; i.e., se a medição é a primeira ou a 
+         // menor
+         {
+            t_seq[n] = dt;
+         }
+         
 
          #ifdef DEBUG
          printf("Sequential execution time: %lf s\n\n", dt);
@@ -319,6 +327,15 @@ int main(int argc, char* argv[])
             GET_TIME(tf);  // etapa concorrente
             dt = tf - t0;
 
+            idx = n * n_nthreads + t;
+
+            if (t_conc[idx] < 0 || t_conc[idx] > dt)
+            // inicializado com -1; i.e., se a medição é a primeira ou
+            // a menor
+            {
+               t_conc[idx] = dt;
+            }
+
             #ifdef DEBUG
             printf("Concurrent execution time (%d threads): %lf s\n\n", nthreads, dt);
             #endif
@@ -357,9 +374,76 @@ int main(int argc, char* argv[])
    }
    else  // se chegou até aqui e não é 3, é 5
    {
-      printf("\nResultados registrados em %s\n", "<arquivo>");
+      printf("\nResultados registrados em %s\n", csv_name);
    }
+   #else
+   puts("t_seq:");
+   display_ffvec(t_seq, n_nelem);
+   puts("t_conc:");
+   display_ffvec(t_conc, n_nelem * n_nthreads);
    #endif
+
+   // Salvando as medições em um arquivo csv:
+
+   FILE* out_csv = fopen(csv_name, "w");
+
+   // Cabeçalho do csv:
+
+   fprintf(out_csv, "len,");
+
+   for (int t=0; t < n_nthreads; t++)
+   {
+      fprintf(out_csv, "%d thread", nthreads_arr[t]);
+
+      if (nthreads_arr[t] > 1)
+      {
+         fprintf(out_csv, "s");
+      }
+
+      if (t < n_nthreads - 1)
+      {
+         fprintf(out_csv, ",");
+      }
+      else
+      {
+         fprintf(out_csv, "\n");
+      }
+   }
+
+   // Calculando e registrando os ganhos de perfomance:
+
+   double perf_gain;
+
+   for (int n=0; n < n_nelem; n++)
+   {
+      fprintf(out_csv, "%d,", nelem_arr[n]);
+
+      for (int t=0; t < n_nthreads; t++)
+      {
+         idx = n * n_nthreads + t;
+
+         perf_gain = t_seq[n] / t_conc[idx];
+
+         #ifdef DEBUG
+         printf("nelem = %d, n = %d\n", nelem_arr[n], nthreads_arr[t]);
+         printf("perf_gain = %lf, t_seq[d] = %lf, t_conc[n * n_nthreads + t] = %lf\n", perf_gain, t_seq[n], t_conc[idx]);
+         #endif
+
+         fprintf(out_csv, "%lf", perf_gain);
+
+         if (t < n_nthreads - 1)
+         {
+            fprintf(out_csv, ",");
+         }
+         else
+         {
+            fprintf(out_csv, "\n");
+         }
+      }
+   }
+
+   fclose(out_csv);
+
 
    free(nelem_arr);
    free(nthreads_arr);
@@ -388,6 +472,19 @@ void* safe_malloc(size_t size)
 
 void display_fvec(float* vec, long long int nelem)
 /* Imprime um vetor vec de nelem elementos do tipo float. */
+{
+   // puts("");
+
+   for (long long int i=0; i < nelem; i++)
+   {
+      printf("%f ", *(vec + i));
+   }
+
+   puts("");
+}
+
+void display_ffvec(double* vec, long long int nelem)
+/* Imprime um vetor vec de nelem elementos do tipo double. */
 {
    // puts("");
 
