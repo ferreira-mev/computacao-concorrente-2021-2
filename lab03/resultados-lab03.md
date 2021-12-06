@@ -4,7 +4,7 @@ Eu já tenho um arquivo README na raiz do repositório, então estou usando um n
 
 Mais informações sobre o processador utilizado estão no relatório do laboratório 2, conforme havia sido solicitado, mas é um Intel Core i7-7700HQ com 4 cores físicos, elevados a 8 cores virtuais por meio de hyperthreading. Assim como no laboratório 2, decidi efetuar as medidas também com 8 threads, por essa razão.
 
-## Medições de ${T_{\text{sequencial}}}/{T_{\text{concorrente}}}$, em segundos
+## Medições de T_sequencial/T_concorrente, em segundos
 
 Estou incluindo as saídas de duas execuções diferentes, a título de comparação.
 
@@ -26,4 +26,4 @@ Acredito que tenha obtido esse resultado porque, pensando no porquê de isso nã
 
 Outra diferença em relação ao laboratório 2 foi que, agora, para os comprimentos maiores, usar 8 threads foi mais eficiente do que usar 4. Suponho que isso possa ter ocorrido porque, no laboratório anterior, deixei cada thread responsável por linhas alternadas, ao passo que desta vez, similarmente ao que foi mostrado nas aulas da terceira semana, aloquei para cada thread um bloco de elementos contíguos. Como meu processador é capaz de gerar dois cores virtuais a partir de cada core físico, esse acesso a posições distantes de memória por duas threads que estão "dividindo" o mesmo processador talvez tenha incorrido num gasto de tempo grande demais para que essa divisão compensasse. Entretanto, como meu entendimento sobre isso é limitado, pode ter sido apenas coincidência, e isso pode ter ocorrido por outras razões, como diferenças entre os próprios algoritmos -- no lab 2, por exemplo, cada thread escrevia suas saídas numa matriz de resultados à medida que calculava, ao passo que, aqui, cada uma mantém apenas um contador interno que é retornado ao final.
 
-Finalmente, em linha com a expectativa, o ganho de performance no caso do vetor menor, de comprimento $10^5$, não foi tão expressivo quanto nos demais casos. Ao executar casos de teste com vetores realmente pequenos, da ordem de $10^1$, observei, inclusive, uma execução mais lenta com qualquer quantidade de threads.
+Finalmente, em linha com a expectativa, o ganho de performance no caso do vetor menor, de comprimento 10^5, não foi tão expressivo quanto nos demais casos. Ao executar casos de teste com vetores realmente pequenos, da ordem de 10^1, observei, inclusive, uma execução mais lenta com qualquer quantidade de threads.
