@@ -9,3 +9,6 @@ count_elems.o: EduardaFerreira-CompConc-lab03-count_elems.c
 
 clean:
 	rm $(wildcard *.o) $(wildcard *.exe)
+
+test: count_elems.exe
+	./count_elems.exe -1 1
