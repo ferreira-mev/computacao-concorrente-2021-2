@@ -9,7 +9,7 @@ Laboratório 3 -- Atividade 1
 #include <math.h>
 #include "../lab02/timer.h"
 
-// #define DEBUG
+#define DEBUG
 
 // Variáveis globais:
 
@@ -31,7 +31,8 @@ void display_fvec(float* vec, long long int nelem);
 void display_dvec(int* vec, long long int nelem);
 void display_llvec(long long int* vec, long long int nelem);
 
-void init_vec(float* vec, long long int nelem);
+void init_vec(double* vec, long long int nelem, double value);
+void init_rvec(float* vec, long long int nelem);
 
 /* Mais ou menos em linha com um comentário que eu havia feito no
 laboratório 2, nem todos esses parâmetros precisariam ser parâmetros,
@@ -171,6 +172,9 @@ int main(int argc, char* argv[])
 
    // TODO (was interrupted): init w/ zeroes; add lowest dt val for each; out to csv; calc ratio (or calc & out?)
 
+   init_vec(t_seq, n_nelem, -1);
+   init_vec(t_conc, n_nelem, -1);
+
    if (argc == 5)
    {
       nelem_arr[0] = nelem;
@@ -220,10 +224,10 @@ int main(int argc, char* argv[])
 
       vec = (float*) safe_malloc(sizeof(float) * nelem);
 
-      init_vec(vec, nelem);
+      init_rvec(vec, nelem);
 
       #ifdef DEBUG
-      printf("\nRandom vector of length %lld:", nelem);
+      printf("\nRandom vector of length %lld:\n", nelem);
       display_fvec(vec, nelem);
       #endif
 
@@ -423,7 +427,25 @@ void display_llvec(long long int* vec, long long int nelem)
 
 // (e aqui eu queria que o C tivesse o overloading do C++ :P)
 
-void init_vec(float* vec, long long int nelem)
+void init_vec(double* vec, long long int nelem, double value)
+/* Inicializa um vetor de nelem floats double com entradas de valor 
+value. */
+{
+   #ifdef DEBUG
+   printf("\nInitializing vector of size %lld with all entries %f\n", nelem, value);
+   #endif
+
+   for (long long int i=0; i < nelem; i++)
+   {
+      *(vec + i) = value;
+
+      #ifdef DEBUG
+      printf("*(vec + %lld) = %.20f\n", i, *(vec + i));
+      #endif
+   }
+}
+
+void init_rvec(float* vec, long long int nelem)
 /* Inicializa um vetor de nelem floats com entradas aleatórias. */
 {
    #ifdef DEBUG
