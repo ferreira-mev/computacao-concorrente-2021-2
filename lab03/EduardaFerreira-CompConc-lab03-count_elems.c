@@ -9,7 +9,7 @@ Laboratório 3 -- Atividade 1
 #include <math.h>
 #include "../lab02/timer.h"
 
-#define DEBUG
+// #define DEBUG
 
 // Variáveis globais:
 
@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
    int* id_range;
    pthread_t* tid;
    int* thread_out;
+   int conc_count;
 
    long long int* nelem_arr;
    int* nthreads_arr;
@@ -254,7 +255,7 @@ int main(int argc, char* argv[])
          {
             GET_TIME(t0);  // etapa concorrente
 
-            int conc_count = 0;
+            conc_count = 0;
 
             nthreads = nthreads_arr[t];
 
@@ -341,6 +342,20 @@ int main(int argc, char* argv[])
       free(vec);
    } // p/ cada comprimento do vetor
    
+
+   #ifndef DEBUG  // só para dar algum feedback ao usuário
+   if (argc == 5)
+   {
+      printf("%lld elementos maiores que %d e menores que %d ", conc_count, lower_bound, upper_bound);
+      printf("encontrados num vetor aleatório\nde tamanho %lld ", nelem_arr[0]);
+      printf("numa contagem efetuada por %d thread(s)", nthreads_arr[0]);
+      printf(" em %f s\n", dt);
+   }
+   else  // se chegou até aqui e não é 3, é 5
+   {
+      printf("\nResultados registrados em %s\n", "<arquivo>");
+   }
+   #endif
 
    free(nelem_arr);
    free(nthreads_arr);
