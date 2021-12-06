@@ -18,7 +18,7 @@ int lower_bound;
 int upper_bound;
 
 // Estou usando limiares inteiros para evitar o problema de ler
-// floats
+// floats (ponto, vírgula etc.)
 
 int nthreads;
 float* vec;
@@ -78,8 +78,15 @@ int main(int argc, char* argv[])
    int n_nthreads;
    int n_runs;
 
+   // P/ marcação de tempo:
    double t0, tf, dt;  // instantes inicial e final, e duração
 
+   double* t_seq;
+   double* t_conc;
+   // Linhas: dimensão
+   // Colunas: número de threads
+
+   
    // Lendo e processando os parâmetros passados pela
    // linha de comando:
 
@@ -155,8 +162,13 @@ int main(int argc, char* argv[])
    // Preenchendo os arrays com os números de elementos e threads a
    // serem usados:
 
-   nelem_arr = safe_malloc(sizeof(long long int) * n_nelem);
-   nthreads_arr = safe_malloc(sizeof(int) * n_nthreads);
+   nelem_arr = (long long int*) safe_malloc(sizeof(long long int) * n_nelem);
+   nthreads_arr = (int*) safe_malloc(sizeof(int) * n_nthreads);
+
+   t_seq = (double*) safe_malloc(sizeof(double) * n_nelem);
+   t_conc = (double*) safe_malloc(sizeof(double) * n_nelem * n_nthreads);
+
+   // TODO (was interrupted): init w/ zeroes; add lowest dt val for each; out to csv; calc ratio (or calc & out?)
 
    if (argc == 5)
    {
@@ -229,6 +241,8 @@ int main(int argc, char* argv[])
 
          GET_TIME(tf);
          dt = tf - t0;
+
+         t_seq[n] = dt;
 
          #ifdef DEBUG
          printf("Sequential execution time: %lf s\n\n", dt);
@@ -330,6 +344,9 @@ int main(int argc, char* argv[])
 
    free(nelem_arr);
    free(nthreads_arr);
+
+   free(t_seq);
+   free(t_conc);
    
    return EXIT_SUCCESS;
 }
