@@ -9,7 +9,7 @@ Laboratório 3 -- Atividade 1
 #include <math.h>
 #include "../lab02/timer.h"
 
-#define DEBUG
+// #define DEBUG
 
 // Variáveis globais:
 
