@@ -1,0 +1,53 @@
+% !TEX program = xelatex
+
+\documentclass{article}
+
+\input{/home/duda/Documents/tex/examheaders.tex}
+
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xurl}  % linebreaks at any character
+
+\usepackage{graphicx}
+\graphicspath{ {..} }
+
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=gray,
+    filecolor=magenta,      
+    urlcolor=blue
+}
+
+\urlstyle{same}
+
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily,
+  breaklines=true,
+  breakatwhitespace=false
+} 
+
+\begin{document}
+
+\begin{large}
+    \compconc{Laboratório 4}
+\end{large}
+
+As sequências de execução serão identificadas pela ordem em que as instruções são executadas. Será sempre presumido que a linha \texttt{int x=0;} é executada primeiro. Cada linha será identificado pelo número da thread, seguido do número da linha propriamente dita, constante no pdf. Serão incluídas apenas os comandos executados até a impressão da saída desejada, ainda que a execução do programa continue depois disso. Exceto quando explicitado o contrário, quando uma linha é listada, é presumido que as instruções de máquina correspondentes a ela sejam executadas completamente antes da execução da linha seguinte.
+
+\begin{itemize}
+  \item 1: T2.1, T2.2, T3.1, T3.2, T3.3;
+  \item -1: T1.1, T1.2, T1.3, T1.4, T1.5 (obs: esse caso corresponde simplesmente ao término da execução da thread 1 antes do início da execução das demais);
+  \item 0: T2.1, T2.2, T3.1, T3.2, T1.1, T3.3;
+  \item 2: T3.1, T3.2, T2.1, T3.3;
+  \item -2: T1.1; execução simultânea de T1.2 e T2.1, com cada uma delas executando a instrução de máquina que acessa o valor de \texttt{x} quando este vale -1, de modo que cada uma, após somar 1, atribuiria a essa variável o valor 0; T1.3, T1.4, T2.2, T1.5;
+  \item 3: T3.1, T3.2; execução simultânea de T1.1 e T2.1, com ambas acessando o valor de \texttt{x} quando este é 1, a thread 1 decrementando \texttt{x} para 0, a thread 2 incrementando \texttt{x} para 2, e esta última executando por último a escrita do valor na memória, de modo que \texttt{x} termina com valor 2; T1.2, T3.3;
+  \item -3: saída impossível, dado que, para que o valor de \texttt{x} seja impresso, é necessário que este chegue ou à linha T1.4 como -1, ou a T3.2 como 1. No primeiro caso, restaria, no máximo, somente mais um decremento de uma unidade (o da linha T2.2) a ser executado, o que levaria a variável a um valor mínimo de -2, ao passo que, no segundo caso, haveria, no máximo, mais três decrementos de uma unidade a serem executados (T1.1, T1.3, T1.2), o que não permitiria que \texttt{x} assumisse um valor menor do que -2;
+  \item 4: saída impossível, pois a variável \texttt{x} é inicializada com valor 0 e há apenas três incrementos de uma unidade, tomando conjuntamente todas as threads;
+  \item -4: saída impossível, pois a variável \texttt{x} é inicializada com valor 0 e há apenas três decrementos de uma unidade, tomando conjuntamente todas as threads.
+\end{itemize}
+
+\end{document}
