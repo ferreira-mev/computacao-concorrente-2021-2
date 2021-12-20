@@ -9,7 +9,10 @@ Laboratório 5 -- Atividade 4
 
 #define NTHREADS  5
 #define MAX_STRLEN 25  // (com folga)
-#define DEBUG
+// (desperdiça um pouquinho de memória, mas nesse caso é mesmo pouco, e
+// simplifica a inicialização do array sentences abaixo)
+
+// #define DEBUG
 
 // Variáveis globais:
 
