@@ -67,6 +67,8 @@ int main(int argc, char *argv[])
         }
     }
 
+    free(id_range);
+    
     #ifdef DEBUG
     puts("Exiting successfully");
     #endif
