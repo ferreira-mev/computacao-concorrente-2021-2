@@ -13,9 +13,9 @@ Laboratório 5 -- Atividade 4
 
 // Variáveis globais:
 
-int filling = 0;  // "booleano"; está no recheio?
-pthread_mutex_t mutex_filling;
-pthread_cond_t cond_filling;
+int stage = 0;  // estágio 0: início; 1: meio; 2: fim
+pthread_mutex_t mutex_stage;
+pthread_cond_t cond_stage;
 
 char sentences[NTHREADS][MAX_STRLEN] = {
     "Volte sempre!",
@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
     int* id_range = (int*) safe_malloc(sizeof(int) * NTHREADS);
 
     // Inicializando vars associadas ao controle de fluxo:
-    pthread_mutex_init(&mutex_filling, NULL);
-    pthread_cond_init(&cond_filling, NULL);
+    pthread_mutex_init(&mutex_stage, NULL);
+    pthread_cond_init(&cond_stage, NULL);
 
     // Preenchendo id_range com os identificadores "internos"
     // das threads:
@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
 
     // Apagando a luz e fechando a porta:
     free(id_range);
-    pthread_mutex_destroy(&mutex_filling);
-    pthread_cond_destroy(&cond_filling);
+    pthread_mutex_destroy(&mutex_stage);
+    pthread_cond_destroy(&cond_stage);
     
     #ifdef DEBUG
     puts("Exiting successfully");
