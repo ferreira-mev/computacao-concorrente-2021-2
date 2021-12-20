@@ -9,6 +9,7 @@ Laboratório 5 -- Atividade 4
 
 #define NTHREADS  5
 #define MAX_STRLEN 25  // (com folga)
+#define DEBUG
 
 // Variáveis globais:
 
@@ -28,8 +29,40 @@ char sentences[NTHREADS][MAX_STRLEN] = {
 
 void* safe_malloc(size_t size);
 
+void* print_sentence(void* p_id);
+
 int main(int argc, char *argv[])
 {
+    pthread_t tid[NTHREADS];
+
+    int* id_range = (int*) safe_malloc(sizeof(int) * NTHREADS);
+    // Preenchendo id_range com os identificadores "internos"
+    // das threads:
+    for (int t=0; t < NTHREADS; t++)
+    {
+        id_range[t] = t;
+    }
+
+    // Criando as threads:
+    for (int t=0; t < NTHREADS; t++)
+    {
+        if (pthread_create(tid + t, NULL, print_sentence, (void*) (id_range + t)))
+        {
+            fprintf(stderr, "Falha na criacao das threads");
+            return EXIT_FAILURE;
+        }
+    }
+
+    // Esperando as threads terminarem:
+    for (int t=0; t < NTHREADS; t++)
+    {
+        if (pthread_join(*(tid + t), NULL))
+        {
+            fprintf(stderr, "Falha na sincronizacao das threads");
+            return EXIT_FAILURE;
+        }
+    }
+
     return EXIT_SUCCESS;
 }
 
@@ -48,4 +81,15 @@ void* safe_malloc(size_t size)
    }
 
    return ptr;
+}
+
+void* print_sentence(void* p_id)
+{
+    int id = *((int*) p_id);
+
+    #ifdef DEBUG
+    printf("Beginning execution of thread %d", id);
+    #endif
+
+    pthread_exit(NULL);
 }
