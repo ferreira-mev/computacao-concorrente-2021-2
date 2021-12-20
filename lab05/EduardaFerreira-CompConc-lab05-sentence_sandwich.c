@@ -33,6 +33,10 @@ void* print_sentence(void* p_id);
 
 int main(int argc, char *argv[])
 {
+    #ifdef DEBUG
+    puts("Beginning execution");
+    #endif
+
     pthread_t tid[NTHREADS];
 
     int* id_range = (int*) safe_malloc(sizeof(int) * NTHREADS);
@@ -63,6 +67,10 @@ int main(int argc, char *argv[])
         }
     }
 
+    #ifdef DEBUG
+    puts("Exiting successfully");
+    #endif
+
     return EXIT_SUCCESS;
 }
 
@@ -88,8 +96,10 @@ void* print_sentence(void* p_id)
     int id = *((int*) p_id);
 
     #ifdef DEBUG
-    printf("Beginning execution of thread %d", id);
+    printf("Beginning execution of thread %d\n", id);
     #endif
+
+    printf("%s\n", sentences[id]);
 
     pthread_exit(NULL);
 }
