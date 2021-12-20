@@ -38,8 +38,12 @@ int main(int argc, char *argv[])
     #endif
 
     pthread_t tid[NTHREADS];
-
     int* id_range = (int*) safe_malloc(sizeof(int) * NTHREADS);
+
+    // Inicializando vars associadas ao controle de fluxo:
+    pthread_mutex_init(&mutex_filling, NULL);
+    pthread_cond_init(&cond_filling, NULL);
+
     // Preenchendo id_range com os identificadores "internos"
     // das threads:
     for (int t=0; t < NTHREADS; t++)
@@ -67,7 +71,10 @@ int main(int argc, char *argv[])
         }
     }
 
+    // Apagando a luz e fechando a porta:
     free(id_range);
+    pthread_mutex_destroy(&mutex_filling);
+    pthread_cond_destroy(&cond_filling);
     
     #ifdef DEBUG
     puts("Exiting successfully");
