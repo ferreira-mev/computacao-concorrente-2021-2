@@ -19,10 +19,16 @@ int NTHR;
 int* rvec;
 int* id_range;
 
+int running_threads;  // "contador reverso" de threads não encerradas
+// (numa dada iteração)
+pthread_mutex_t mutex_rt;
+pthread_cond_t cond_barr;
+
 // Cabeçalhos de funções:
 
 void* safe_malloc(size_t size);
 void* sum_and_change(void* p_id);
+void barrier();
 
 // Fluxo da thread principal:
 
@@ -42,6 +48,7 @@ int main(int argc, char *argv[])
 
     NTHR = atoi(argv[1]);
     pthread_t tid[NTHR];
+    running_threads = NTHR;
 
     printf("[main] Numero de threads fornecido: %d\n", NTHR);
     
@@ -115,4 +122,23 @@ trabalho. */
     printf("[thread %d] Iniciando execucao\n", id);
 
     pthread_exit(NULL);
+}
+
+void barrier()
+{
+    pthread_mutex_lock(&mutex_rt);
+
+    if (!running_threads)
+    {
+        pthread_cond_broadcast(&cond_barr);
+        running_threads = NTHR;
+    }
+    else
+    {
+        running_threads--;
+        pthread_cond_wait(&cond_barr, &mutex_rt);
+    }
+
+    pthread_mutex_ulock(&mutex_rt);
+
 }
