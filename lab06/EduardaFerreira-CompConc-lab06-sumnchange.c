@@ -125,6 +125,7 @@ trabalho. */
 }
 
 void barrier()
+/* Função barreira. */
 {
     pthread_mutex_lock(&mutex_rt);
 
