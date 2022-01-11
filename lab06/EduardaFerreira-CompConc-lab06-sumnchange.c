@@ -17,10 +17,12 @@ das saídas fora do modo debug, como nos laboratórios anteriores.
 
 int NTHR;
 int* rvec;
+int* id_range;
 
 // Cabeçalhos de funções:
 
 void* safe_malloc(size_t size);
+void* sum_and_change(void* p_id);
 
 // Fluxo da thread principal:
 
@@ -37,24 +39,54 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
 
     }
+
     NTHR = atoi(argv[1]);
+    pthread_t tid[NTHR];
 
     printf("[main] Numero de threads fornecido: %d\n", NTHR);
     
     printf("[main] Inicializando pseudo-RNG e vetor de inteiros aleatorios\n");
     srand(time(NULL));
     
-    rvec = safe_malloc(sizeof(int) * NTHR);
+    rvec = (int*) safe_malloc(sizeof(int) * NTHR);
+    id_range = (int*) safe_malloc(sizeof(int) * NTHR);
 
     for (int i = 0; i < NTHR; i++)
     {
+        id_range[i] = i;
         rvec[i] = (rand() % 10);
         // A rigor, não preserva a equiprobabilidade, mas isso não é
         // crucial aqui
         printf("[main] Posição %d: %d\n", i, rvec[i]);
     }
 
-    puts("[main] Encerrando execucao com sucesso");
+    puts("[main] Criando threads");
+
+    for (int t=0; t < NTHR; t++)
+    {
+        if (pthread_create(tid + t, NULL, sum_and_change, (void*) (id_range + t)))
+        {
+            fprintf(stderr, "[main] Falha na criacao das threads");
+            return EXIT_FAILURE;
+        }
+    }
+
+    // Esperando as threads terminarem:
+    for (int t=0; t < NTHR; t++)
+    {
+        if (pthread_join(*(tid + t), NULL))
+        {
+            fprintf(stderr, "[main] Falha na sincronizacao das threads");
+            return EXIT_FAILURE;
+        }
+    }
+
+    puts("[main] Execucao de todas as threads concluida");
+
+    free(id_range);
+    free(rvec);
+
+    puts("[main] Encerrando execucao do programa principal com sucesso");
     return EXIT_SUCCESS;
 }
 
@@ -72,4 +104,15 @@ void* safe_malloc(size_t size)
    }
 
    return ptr;
+}
+
+void* sum_and_change(void* p_id)
+/* Tarefa de cada thread, conforme descrita nas especificações do 
+trabalho. */
+{
+    int id = *((int*) p_id);
+    
+    printf("[thread %d] Iniciando execucao\n", id);
+
+    pthread_exit(NULL);
 }
