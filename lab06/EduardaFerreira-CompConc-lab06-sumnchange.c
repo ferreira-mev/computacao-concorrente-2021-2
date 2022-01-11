@@ -17,7 +17,6 @@ das saídas fora do modo debug, como nos laboratórios anteriores.
 
 int NTHR;
 int* rvec;
-int* id_range;
 
 int running_threads;  // "contador reverso" de threads não encerradas
 // (numa dada iteração)
@@ -35,6 +34,9 @@ void barrier(int thr_id);
 int main(int argc, char *argv[])
 {
     puts("[main] Iniciando execucao");
+
+    int* id_range;
+    int* thread_outs;
 
     puts("[main] Inicializando variaveis associadas ao controle de fluxo");
     pthread_mutex_init(&mutex_rt, NULL);
@@ -61,6 +63,7 @@ int main(int argc, char *argv[])
     
     rvec = (int*) safe_malloc(sizeof(int) * NTHR);
     id_range = (int*) safe_malloc(sizeof(int) * NTHR);
+    thread_outs = (int*) safe_malloc(sizeof(int) * NTHR);
 
     for (int i = 0; i < NTHR; i++)
     {
@@ -77,7 +80,7 @@ int main(int argc, char *argv[])
     {
         if (pthread_create(tid + t, NULL, sum_and_change, (void*) (id_range + t)))
         {
-            fprintf(stderr, "[main] Falha na criacao das threads");
+            fprintf(stderr, "[main] Falha na criacao das threads\n");
             return EXIT_FAILURE;
         }
     }
@@ -85,14 +88,34 @@ int main(int argc, char *argv[])
     // Esperando as threads terminarem:
     for (int t=0; t < NTHR; t++)
     {
-        if (pthread_join(*(tid + t), NULL))
+        if (pthread_join(*(tid + t), (void**) &(thread_outs[t])))
         {
-            fprintf(stderr, "[main] Falha na sincronizacao das threads");
+            fprintf(stderr, "[main] Falha na sincronizacao das threads\n");
             return EXIT_FAILURE;
         }
     }
 
     puts("[main] Execucao de todas as threads concluida");
+
+    int match = 1;
+
+    for (int t=0; t < NTHR; t++)
+    {
+        printf("[main] Thread %d retornou %d\n", t, thread_outs[t]);
+
+        if ((t > 0) && (thread_outs[t] != thread_outs[t - 1]))
+        {
+            match = 0;
+        }
+    }
+
+    if (!match)
+    {
+        fprintf(stderr, "[main] Erro: as threads retornaram valores distintos\n");
+        return EXIT_FAILURE;
+    }
+
+    puts("[main] Todas as threads retornaram valores iguais");
 
     free(id_range);
     free(rvec);
@@ -112,7 +135,7 @@ void* safe_malloc(size_t size)
 
    if (!ptr)
    {
-      fprintf(stderr, "Falha na alocacao de memoria");
+      fprintf(stderr, "Falha na alocacao de memoria\n");
       exit(EXIT_FAILURE);
    }
 
@@ -157,7 +180,12 @@ trabalho. */
 
     printf("[thread %d] Soma das somas: %d\n", id, sum_of_sums);
 
-    pthread_exit(NULL);
+    pthread_exit((void*) sum_of_sums);
+    /* O compilador dá um warning porque o int tem tamanho menor, mas 
+    essa questão do cast de inteiro como void* foi discutida em aula. 
+    Neste caso, funciona, então estou mantendo assim por simplicidade/
+    comodidade, para evitar lidar com mais variáveis alocadas 
+    dinamicamente, ou com long longs desnecessários por todo o código.  */
 }
 
 void barrier(int thr_id)
