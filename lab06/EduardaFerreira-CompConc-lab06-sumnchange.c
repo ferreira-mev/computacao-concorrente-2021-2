@@ -28,13 +28,17 @@ pthread_cond_t cond_barr;
 
 void* safe_malloc(size_t size);
 void* sum_and_change(void* p_id);
-void barrier();
+void barrier(int thr_id);
 
 // Fluxo da thread principal:
 
 int main(int argc, char *argv[])
 {
     puts("[main] Iniciando execucao");
+
+    puts("[main] Inicializando variaveis associadas ao controle de fluxo");
+    pthread_mutex_init(&mutex_rt, NULL);
+    pthread_cond_init(&cond_barr, NULL);
 
     if (argc != 2)
     {
@@ -48,7 +52,7 @@ int main(int argc, char *argv[])
 
     NTHR = atoi(argv[1]);
     pthread_t tid[NTHR];
-    running_threads = NTHR;
+    running_threads = NTHR - 1;
 
     printf("[main] Numero de threads fornecido: %d\n", NTHR);
     
@@ -92,6 +96,8 @@ int main(int argc, char *argv[])
 
     free(id_range);
     free(rvec);
+    pthread_mutex_destroy(&mutex_rt);
+    pthread_cond_destroy(&cond_barr);
 
     puts("[main] Encerrando execucao do programa principal com sucesso");
     return EXIT_SUCCESS;
@@ -118,28 +124,59 @@ void* sum_and_change(void* p_id)
 trabalho. */
 {
     int id = *((int*) p_id);
-    
+
     printf("[thread %d] Iniciando execucao\n", id);
+
+    int sum_of_sums = 0;
+
+    for (int iter = 0; iter < NTHR; iter++)
+    {
+        printf("[thread %d, %d/%d] Iniciando iteracao %d\n", id, iter + 1, NTHR, iter);
+
+        int curr_sum = 0;
+
+        for (int i = 0; i < NTHR; i++)
+        {
+            // acesso apenas para leitura, não requer exclusão
+            curr_sum += rvec[i];
+        }
+
+        printf("[thread %d, %d/%d] Soma dos elementos: %d\n", id, iter + 1, NTHR, curr_sum);
+
+        sum_of_sums += curr_sum;
+
+        barrier(id);  // espera todas somarem
+
+        // acesso a posições distintas, não requer exclusão
+        rvec[id] = rand() % 10;
+
+        printf("[thread %d] Posicao %d sobrescrita com %d\n", id, id, rvec[id]);
+
+        barrier(id);  // espera todas alterarem
+    }
+
+    printf("[thread %d] Soma das somas: %d\n", id, sum_of_sums);
 
     pthread_exit(NULL);
 }
 
-void barrier()
+void barrier(int thr_id)
 /* Função barreira. */
 {
     pthread_mutex_lock(&mutex_rt);
 
     if (!running_threads)
     {
+        printf("[thread %d] Ultima thread a terminar etapa; broadcasting\n", thr_id);
         pthread_cond_broadcast(&cond_barr);
-        running_threads = NTHR;
+        running_threads = NTHR - 1;
     }
     else
     {
+        printf("[thread %d] Bloqueando-se e aguardando\n", thr_id);
         running_threads--;
         pthread_cond_wait(&cond_barr, &mutex_rt);
     }
 
-    pthread_mutex_ulock(&mutex_rt);
-
+    pthread_mutex_unlock(&mutex_rt);
 }
