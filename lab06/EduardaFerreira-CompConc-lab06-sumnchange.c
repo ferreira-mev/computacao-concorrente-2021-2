@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         printf("[main] Posição %d: %d\n", i, rvec[i]);
     }
 
-    puts("Encerrando execucao com sucesso");
+    puts("[main] Encerrando execucao com sucesso");
     return EXIT_SUCCESS;
 }
 
