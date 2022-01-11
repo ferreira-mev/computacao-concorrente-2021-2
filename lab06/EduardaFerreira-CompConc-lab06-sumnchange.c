@@ -11,18 +11,22 @@ das saídas fora do modo debug, como nos laboratórios anteriores.
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 // Variáveis globais:
 
 int NTHR;
+int* rvec;
 
 // Cabeçalhos de funções:
 
 void* safe_malloc(size_t size);
 
+// Fluxo da thread principal:
+
 int main(int argc, char *argv[])
 {
-    puts("Iniciando execucao");
+    puts("[main] Iniciando execucao");
 
     if (argc != 2)
     {
@@ -35,8 +39,20 @@ int main(int argc, char *argv[])
     }
     NTHR = atoi(argv[1]);
 
-    printf("Numero de threads fornecido: %d\n", NTHR);
+    printf("[main] Numero de threads fornecido: %d\n", NTHR);
     
+    printf("[main] Inicializando pseudo-RNG e vetor de inteiros aleatorios\n");
+    srand(time(NULL));
+    
+    rvec = safe_malloc(sizeof(int) * NTHR);
+
+    for (int i = 0; i < NTHR; i++)
+    {
+        rvec[i] = (rand() % 10);
+        // A rigor, não preserva a equiprobabilidade, mas isso não é
+        // crucial aqui
+        printf("[main] Posição %d: %d\n", i, rvec[i]);
+    }
 
     puts("Encerrando execucao com sucesso");
     return EXIT_SUCCESS;
