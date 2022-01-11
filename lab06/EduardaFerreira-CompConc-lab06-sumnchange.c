@@ -24,6 +24,20 @@ int main(int argc, char *argv[])
 {
     puts("Iniciando execucao");
 
+    if (argc != 2)
+    {
+        puts("Modo de uso:\n");
+        printf("%s N\n\n", argv[0]);
+        puts("onde N e o numero de threads");
+
+        return EXIT_FAILURE;
+
+    }
+    NTHR = atoi(argv[1]);
+
+    printf("Numero de threads fornecido: %d\n", NTHR);
+    
+
     puts("Encerrando execucao com sucesso");
     return EXIT_SUCCESS;
 }
