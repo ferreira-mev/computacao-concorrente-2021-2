@@ -7,9 +7,12 @@ public class Main
 {
     static int nThreads = 2;  // apenas para testar, por enquanto
     static int vecLen = 100;  // idem
+
+    static Shared vector = new Shared(vecLen);
     public static void main (String[] args)
     {
-        Shared vector = new Shared(vecLen);
+        System.out.println("[main] Iniciando execucao");
+
         Thread[] threads = new Thread[nThreads];
 
         for (int i=0; i < nThreads; i++)
@@ -24,11 +27,11 @@ public class Main
             try { threads[i].join(); }
             catch (InterruptedException e)
             {
-                System.err.println("Falha na sincronizacao");
+                System.err.println("[main] Falha na sincronizacao");
                 return;
             }
         }
-        
-        System.out.println("main terminou");
+
+        System.out.println("[main] Encerrando execucao com sucesso");
     }
 }

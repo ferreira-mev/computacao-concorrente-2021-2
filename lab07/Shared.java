@@ -23,6 +23,10 @@ public class Shared {
 
     public int get(int i)
     {
+        // não precisa de synchronized porque é somente leitura,
+        // então não há problema em haver acessos simultâneos;
+        // seria necessário caso houvesse um método que alterasse
+        // os valores
         return this.vector[i];
     }
 }
