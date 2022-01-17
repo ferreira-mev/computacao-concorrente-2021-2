@@ -40,13 +40,8 @@ public class Adder implements Runnable {  // hiss
         System.out.printf("[thread %d] Soma das posicoes de ", id);
         System.out.printf("%d a %d: %d%n", min, max - 1, sum);
 
-        System.out.printf("[thread %d] Encerrando execucao%n", id);
-    }
+        Main.vector.addToSum(sum);
 
-    public int getSum() // synchronized? & run too?
-    // cf. https://stackoverflow.com/a/9148954
-    {
-        return this.sum;
-    }
-    
+        System.out.printf("[thread %d] Encerrando execucao%n", id);
+    }    
 }

@@ -8,7 +8,7 @@ Recurso (vetor de inteiros) compartilhado entre as threads.
 public class Shared {
     private int[] vector;
 
-    // private int sum;
+    private int sumOfEntries;
 
     public Shared(int len)
     {
@@ -30,5 +30,18 @@ public class Shared {
         // seria necessário caso houvesse um método que alterasse
         // os valores
         return this.vector[i];
+    }
+
+    public synchronized void addToSum(int partialSum)
+    {
+        sumOfEntries += partialSum;
+        System.out.printf("[vetor] Soma parcial atualizada para %d%n", sumOfEntries);
+    }
+
+    public synchronized int getSum()
+    {
+        // aqui precisa de synchronized para não acessar enquanto
+        // o valor está sendo atualizado
+        return this.sumOfEntries;
     }
 }
