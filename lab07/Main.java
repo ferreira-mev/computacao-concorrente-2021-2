@@ -14,6 +14,7 @@ public class Main
         System.out.println("[main] Iniciando execucao");
 
         Thread[] threads = new Thread[nThreads];
+        int total = 0;
 
         for (int i=0; i < nThreads; i++)
         {
@@ -24,7 +25,11 @@ public class Main
 
         for (int i=0; i < nThreads; i++)
         {
-            try { threads[i].join(); }
+            try
+            {
+                threads[i].join();
+                total += threads[i].getSum();
+            }
             catch (InterruptedException e)
             {
                 System.err.println("[main] Falha na sincronizacao");
@@ -32,6 +37,18 @@ public class Main
             }
         }
 
+        // Verificando a corretude:
+
+        int expected = (vecLen * (vecLen + 1)) / 2;
+
+        if (total != expected)
+        {
+            System.err.printf("[main] Erro no calculo - valor ");
+            System.err.printf("esperado: %d; obtido: %d", expected, total);
+        }
+
+        System.out.printf("[main] Soma das entradas (i.e., dos ");
+        System.out.printf("naturais de 1 a %d): %d", vecLen, total);
         System.out.println("[main] Encerrando execucao com sucesso");
     }
 }

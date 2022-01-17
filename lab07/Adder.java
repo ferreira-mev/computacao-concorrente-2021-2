@@ -42,4 +42,11 @@ public class Adder implements Runnable {  // hiss
 
         System.out.printf("[thread %d] Encerrando execucao%n", id);
     }
+
+    public int getSum() // synchronized? & run too?
+    // cf. https://stackoverflow.com/a/9148954
+    {
+        return this.sum;
+    }
+    
 }

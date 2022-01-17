@@ -8,6 +8,8 @@ Recurso (vetor de inteiros) compartilhado entre as threads.
 public class Shared {
     private int[] vector;
 
+    // private int sum;
+
     public Shared(int len)
     {
         // Inicializando o vetor com 1, 2, ..., len apenas para
