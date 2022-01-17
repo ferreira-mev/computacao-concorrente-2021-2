@@ -8,13 +8,11 @@ public class Main
     static int nThreads = 2;  // apenas para testar, por enquanto
     public static void main (String[] args)
     {
-        // System.out.println("hello world");
-
         Thread[] threads = new Thread[nThreads];
 
         for (int i=0; i < nThreads; i++)
         {
-            threads[i] = new Adder(i);
+            threads[i] = new Thread(new Adder(i));
         }
 
         for (int i=0; i < nThreads; i++) { threads[i].start(); }
