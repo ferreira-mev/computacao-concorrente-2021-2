@@ -6,8 +6,10 @@ Laboratório 7 -- Atividade 5
 public class Main
 {
     static int nThreads = 2;  // apenas para testar, por enquanto
+    static int vecLen = 100;  // idem
     public static void main (String[] args)
     {
+        Shared vector = new Shared(vecLen);
         Thread[] threads = new Thread[nThreads];
 
         for (int i=0; i < nThreads; i++)
@@ -26,7 +28,7 @@ public class Main
                 return;
             }
         }
-
+        
         System.out.println("main terminou");
     }
 }
