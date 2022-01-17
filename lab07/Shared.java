@@ -15,6 +15,8 @@ public class Shared {
         // Inicializando o vetor com 1, 2, ..., len apenas para
         // simplificar a verificação da corretude:
 
+        System.out.printf("[vetor] Inicializando vetor de comprimento %d%n",len);
+
         this.vector = new int[len];
     
         for (int i=0; i < len; i++)

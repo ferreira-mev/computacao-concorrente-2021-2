@@ -1,6 +1,9 @@
 /* Computação Concorrente -- profa. Silvana Rossetto -- 2021.2 -- UFRJ
 Aluna: Eduarda Ferreira
 Laboratório 7 -- Atividade 5
+
+Classe com tarefa executada pelas threads para somar parte das entradas
+do vetor, de acordo com sua identificação.
 */
 
 public class Adder implements Runnable {  // hiss
@@ -17,6 +20,7 @@ public class Adder implements Runnable {  // hiss
     {
         System.out.printf("[thread %d] Iniciando execucao%n", id);
 
+        // Determinando os índices do bloco a somar:
         int min; int max;
 
         int chunkSize = Main.vecLen / Main.nThreads;
@@ -32,13 +36,14 @@ public class Adder implements Runnable {  // hiss
             max = Main.vecLen;
         }
 
+        // Somando as entradas que cabem à thread:
         for (int i = min; i < max; i++)
         {
             sum += Main.vector.get(i);
         }
 
-        System.out.printf("[thread %d] Soma das posicoes de ", id);
-        System.out.printf("%d a %d: %d%n", min, max - 1, sum);
+        System.out.printf("[thread %d] Soma das posicoes de " +
+                            "%d a %d: %d%n", id, min, max - 1, sum);
 
         Main.vector.addToSum(sum);
 
