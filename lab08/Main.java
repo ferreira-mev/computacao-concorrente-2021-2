@@ -3,6 +3,10 @@ Aluna: Eduarda Ferreira
 Laboratório 8 -- Atividade 1
 
 Programa principal. Código adaptado do fornecido pela professora.
+
+A saída deste programa, se redirecionada para um arquivo Python, ainda
+é compatível com a classe verificaLE.py e serve como script verificador
+da corretude de implementação do padrão de leitores/escritores.
 */
 
 public class Main {
