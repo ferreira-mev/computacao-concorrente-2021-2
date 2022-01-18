@@ -24,15 +24,16 @@ public class Leitor implements Runnable {
 
                 int valor = this.monitor.getVarComum();
 
-                System.out.printf("# [thread %d] Variavel compartilhada ", this.id);
+                String outMsg = "# [thread " + this.id + "] Variavel compartilhada ";
 
                 if ((valor % 2) == 0) {
-                System.out.printf("par");
+                    outMsg += "par";
                 } else {
-                System.out.printf("impar");
+                    outMsg += "impar";
                 }
-
-                System.out.printf(" de valor %d%n", valor);
+                
+                outMsg += " de valor " + valor;
+                System.out.println(outMsg);
 
                 this.monitor.saiLeitor(this.id);
                 Thread.sleep(Main.sleepDelay);

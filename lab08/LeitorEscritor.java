@@ -25,8 +25,8 @@ public class LeitorEscritor implements Runnable {
 
                 int valor = monitor.getVarComum();
 
-                System.out.printf("# [thread %d] Variavel compartilhada ", this.id);
-                System.out.printf("com valor %d%n", valor);
+                System.out.println("# [thread " + this.id + 
+                    "] Variavel compartilhada com valor " + valor);
 
                 this.monitor.saiLeitor(this.id);
 
