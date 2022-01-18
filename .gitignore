@@ -16,3 +16,5 @@ lab01/test_vector.txt
 lab05/cods-lab5
 lab07/cods-lab7
 *.class
+__pycache__
+outputLE.py
