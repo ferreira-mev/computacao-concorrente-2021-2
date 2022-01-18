@@ -1,4 +1,4 @@
-#Define funcoes para verificar a logica de execucao de uma aplicacao leitor/escritor
+# Define funcoes para verificar a logica de execucao de uma aplicacao leitor/escritor
 
 # (Classe de autoria da profa. Silvana Rossetto)
 

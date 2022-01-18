@@ -7,8 +7,9 @@ adaptado do fornecido pela professora.
 */
 
 public class Escritor implements Runnable {
-    int id; //identificador da thread
-    Monitor monitor; //objeto monitor para coordenar a lógica de execução das threads
+    int id; // identificador da thread
+    Monitor monitor; // objeto monitor para coordenar a lógica de 
+    // execução das threads
   
     // Construtor
     public Escritor(int id, Monitor m) {

@@ -7,8 +7,9 @@ escritoras. Código adaptado do fornecido pela professora.
 */
 
 public class LeitorEscritor implements Runnable {
-    int id; //identificador da thread
-    Monitor monitor;//objeto monitor para coordenar a lógica de execução das threads
+    int id; // identificador da thread
+    Monitor monitor; // objeto monitor para coordenar a lógica de 
+    // execução das threads
 
     // Construtor
     public LeitorEscritor (int id, Monitor m) {
@@ -30,7 +31,8 @@ public class LeitorEscritor implements Runnable {
 
                 this.monitor.saiLeitor(this.id);
 
-                for (i=0; i<100000000; i++) {j=j/2;} //...loop bobo para simbolizar o tempo de processamento
+                for (i=0; i<100000000; i++) {j=j/2;} // loop bobo 
+                // para simbolizar o tempo de processamento
 
                 this.monitor.entraEscritor(this.id);
                 this.monitor.incrVarComum();
