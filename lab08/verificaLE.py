@@ -2,8 +2,6 @@
 
 # (Classe de autoria da profa. Silvana Rossetto)
 
-# mas essa verif ainda vai funcionar c/ a adição das LEs?
-
 class LE:
 	def __init__(self):
 		self.escritores = 0
