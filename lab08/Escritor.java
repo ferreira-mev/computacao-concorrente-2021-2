@@ -23,7 +23,7 @@ public class Escritor implements Runnable {
                 this.monitor.entraEscritor(this.id);
                 this.monitor.setVarComum(this.id);
                 this.monitor.saiEscritor(this.id); 
-                sleep(Main.sleepDelay);
+                Thread.sleep(Main.sleepDelay);
             }
         } catch (InterruptedException e) { return; }
     }

@@ -35,7 +35,7 @@ public class Leitor implements Runnable {
                 System.out.printf(" de valor %d%n", valor);
 
                 this.monitor.saiLeitor(this.id);
-                sleep(Main.sleepDelay);
+                Thread.sleep(Main.sleepDelay);
             }
         } catch (InterruptedException e) { 
             return; 
