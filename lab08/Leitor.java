@@ -12,33 +12,33 @@ public class Leitor implements Runnable {
   
     // Construtor
     public Leitor (int id, Monitor m) {
-      this.id = id;
-      this.monitor = m;
+        this.id = id;
+        this.monitor = m;
     }
   
     // Método executado pela thread
     public void run() {
-    //   try {
-    for (int iter = 0; iter < Main.maxIter; iter++) {
-        this.monitor.entraLeitor(this.id);
-        
-        int valor = this.monitor.getVarComum();
+        try {
+            for (int iter = 0; iter < Main.maxIter; iter++) {
+                this.monitor.entraLeitor(this.id);
 
-        System.out.printf("# [thread %d] Variavel compartilhada ", this.id);
+                int valor = this.monitor.getVarComum();
 
-        if ((valor % 2) == 0) {
-        System.out.printf("par");
-        } else {
-        System.out.printf("impar");
+                System.out.printf("# [thread %d] Variavel compartilhada ", this.id);
+
+                if ((valor % 2) == 0) {
+                System.out.printf("par");
+                } else {
+                System.out.printf("impar");
+                }
+
+                System.out.printf(" de valor %d%n", valor);
+
+                this.monitor.saiLeitor(this.id);
+                sleep(Main.sleepDelay);
+            }
+        } catch (InterruptedException e) { 
+            return; 
         }
-
-        System.out.printf(" de valor %d%n", valor);
-
-        this.monitor.saiLeitor(this.id);
-        // sleep(this.delay); 
-    }
-    //   } catch (InterruptedException e) { 
-    //       return; 
-    //     }
     }
   }

@@ -12,19 +12,19 @@ public class Escritor implements Runnable {
   
     // Construtor
     public Escritor(int id, Monitor m) {
-      this.id = id;
-      this.monitor = m;
+        this.id = id;
+        this.monitor = m;
     }
   
     // Método executado pela thread
     public void run() {
-      // try {
-      for (int iter = 0; iter < Main.maxIter; iter++) {
-        this.monitor.entraEscritor(this.id);
-        this.monitor.setVarComum(this.id);
-        this.monitor.saiEscritor(this.id); 
-        // sleep(this.delay); //atraso bobo...
-      }
-      // } catch (InterruptedException e) { return; }
+        try {
+            for (int iter = 0; iter < Main.maxIter; iter++) {
+                this.monitor.entraEscritor(this.id);
+                this.monitor.setVarComum(this.id);
+                this.monitor.saiEscritor(this.id); 
+                sleep(Main.sleepDelay);
+            }
+        } catch (InterruptedException e) { return; }
     }
   }
