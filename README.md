@@ -1,1 +1,1 @@
-Repositório criado para centralizar todas as entregas de laboratórios da disciplina de Computação Concorrente, oferecida de maneira remota/híbrida pela profa. Silvana Rossetto (UFRJ) em 2021.2.
+Repositório criado para centralizar todas as entregas de laboratórios e do trabalho de implementação da disciplina de Computação Concorrente, oferecida de maneira remota/híbrida pela profa. Silvana Rossetto (UFRJ) em 2021.2.
