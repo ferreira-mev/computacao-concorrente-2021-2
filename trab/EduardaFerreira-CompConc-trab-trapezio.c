@@ -51,6 +51,10 @@ int main(int argc, char *argv[])
 {
     puts("[main] Iniciando execucao");
 
+    printf("[main] Testando: f1(0) = %f\n", test_functions[2](0));
+
+    printf("[main] Testando: F2(1) = %f\n", test_primitives[1](1));
+
     puts("[main] Encerrando execucao com sucesso");
 
     return EXIT_SUCCESS;
@@ -63,7 +67,7 @@ double test_f1(double x)  // 4x^5 + x^2 - 3x - 5
     return 4*pow(x, 5) + pow(x, 2) - 3*x + 5;
 }
 
-double test_f2(double x)  // 1 / x
+double test_f2(double x)
 {
     return 1 / x;
 }
