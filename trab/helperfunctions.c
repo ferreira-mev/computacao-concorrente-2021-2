@@ -29,18 +29,18 @@ void* safe_malloc(size_t size)
 }
 
 short int compare_doubles(double x, double y, double delta)
-/* Retorna 0 se os números de ponto flutuante x e y podem ser
-considerados iguais por uma margem delta, e 1 caso contrário.
+/* Retorna 1 se os números de ponto flutuante x e y podem ser
+considerados iguais por uma margem delta, e 0 caso contrário.
 
 Adaptada de https://floating-point-gui.de/errors/comparison/ */
 {
     double abs_x = fabs(x);
     double abs_y = fabs(y);
     double abs_diff = fabs(x - y);
-
+    
     if (x == y)
     {
-        return 0;
+        return 1;
     }
     else if (!x || !y || (abs_x + abs_y < DBL_MIN))
     {

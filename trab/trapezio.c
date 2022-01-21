@@ -120,13 +120,35 @@ int main(int argc, char *argv[])
                         free(thread_out);  // precisa? alocada na tarefa da thread
                     }
 
+                    // printf("%f %f", seq_out, conc_out);
                     free(tid);
 
                     // Comparando resultados sequencial e concorrente:
 
-                    // (remember: fabs, not abs, for double)
+                    char case_string[100];
 
-                    // https://floating-point-gui.de/errors/comparison/
+                    sprintf
+                    (
+                        case_string,
+                        "no caso da funcao %d com %d subintervalos e %d threads\0",
+                        f_idx + 1,
+                        n_subintervals[n_idx],
+                        n_threads[t_idx]
+                    );
+
+                    seq_out = 1.0;
+
+                    if (!compare_doubles(seq_out, conc_out, pow(10, -6)))
+                    {
+                        printf("[main] Erro %s:\n", case_string);
+                        printf("[main] Saida sequencial: %f\n", seq_out);
+                        printf("[main] Saida concorrente: %f\n", conc_out);
+                        printf("[main] (Diferença absoluta: %f)\n", fabs(seq_out - conc_out));
+
+                        puts("");
+
+                    }
+
                 }
             }
         }
