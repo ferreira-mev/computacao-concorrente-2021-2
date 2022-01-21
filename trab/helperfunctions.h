@@ -12,7 +12,10 @@ fluxos de execução das threads principal e paralelas.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 void* safe_malloc(size_t size);
+
+short int compare_doubles(double x, double y, double delta);
 
 #endif // HELPERFUNCTIONS_H
