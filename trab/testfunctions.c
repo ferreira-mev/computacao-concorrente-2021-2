@@ -38,3 +38,18 @@ double primitive_f3(double x)
 {
     return sin(x) * cos(x);
 }
+
+double derivative_f1(double x)  // 20x^4 + 2x - 3
+{
+    return 20*pow(x, 4) + 2*x - 3;
+}
+
+double derivative_f2(double x)
+{
+    return - 1 / pow(x, 2);
+}
+
+double derivative_f3(double x)
+{
+    return -2 * sin(2 * x);
+}

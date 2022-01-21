@@ -19,4 +19,8 @@ double primitive_f1(double x);
 double primitive_f2(double x);
 double primitive_f3(double x);
 
+double derivative_f1(double x);
+double derivative_f2(double x);
+double derivative_f3(double x);
+
 #endif  // TESTFUNCTIONS_H

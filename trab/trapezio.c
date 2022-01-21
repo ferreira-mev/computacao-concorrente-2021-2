@@ -19,14 +19,6 @@ int n_threads[6] = { 1, 2, 4, 6, 8, 10 };
 int n_subintervals[3] = { 1000, 10000, 100000 };
 int n_runs = 5;
 
-typedef struct
-{
-    int thread_id;
-    int function_id;
-    int n_subintervals;
-} thread_args;
-
-
 testfoo_ptr test_functions[3] =
 {
     test_f1, test_f2, test_f3
@@ -36,6 +28,18 @@ testfoo_ptr test_primitives[3] =
 {
     primitive_f1, primitive_f2, primitive_f3
 };
+
+testfoo_ptr test_derivatives[3] =
+{
+    derivative_f1, derivative_f2, derivative_f3
+};
+
+typedef struct
+{
+    int thread_id;
+    int function_id;
+    int n_subintervals;
+} thread_args;
 
 double min_x = 1.0;
 double max_x = 11.0;  // integração em [1, 11]
