@@ -12,6 +12,8 @@ Paralelização da integração numérica pelo método do trapézio.
 #include <time.h>
 #include <math.h>
 
+#include "../lab02/timer.h"
+
 int n_threads[6] = { 1, 2, 4, 6, 8, 10 };
 int n_subintervals[3] = { 1000, 10000, 100000 };
 int n_runs = 5;
