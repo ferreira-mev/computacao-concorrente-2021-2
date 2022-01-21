@@ -38,6 +38,7 @@ testfoo_ptr test_derivatives[3] =
 typedef struct
 {
     int thread_id;
+    int n_threads;
     int function_id;
     int n_subintervals;
 } thread_args;
@@ -53,16 +54,12 @@ int main(int argc, char *argv[])
 {
     puts("[main] Iniciando execucao");
 
-    printf("[main] Testando: f1(0) = %f\n", test_functions[2](0));
-
-    printf("[main] Testando: F2(1) = %f\n", test_primitives[1](1));
-
-    pthread_t* tid;
-    double seq_out, conc_out;
-    double* thread_out;
+    pthread_t* tid;  // identificadores internos das threads
+    double seq_out, conc_out;  // resultados sequencial e concorrente
+    double* thread_out;  // recebe a saída de cada thread
     double analytical, h;  // p/ comparar conc e "analítico"
 
-    double delta = pow(10, -6);  // p/ comparar valores double
+    double delta = pow(10, -10);  // p/ comparar valores double
 
     // P/ marcação de tempo:
     double t0, tf, dt;  // instantes inicial e final, e duração
@@ -93,6 +90,9 @@ int main(int argc, char *argv[])
                         curr_args = (thread_args*) safe_malloc(sizeof(thread_args));
 
                         curr_args->thread_id = t;
+                        printf("t = %d\n", t);
+                        printf("curr_args->thread_id = %d\n", curr_args->thread_id);
+                        curr_args->n_threads = n_threads[t_idx];
                         curr_args->function_id = f_idx;
                         curr_args->n_subintervals = n_subintervals[n_idx];
 
@@ -102,7 +102,6 @@ int main(int argc, char *argv[])
                             return EXIT_FAILURE;
                         }
 
-                        free(curr_args);
                     }
 
                     // Sincronizando as threads:
@@ -119,8 +118,7 @@ int main(int argc, char *argv[])
 
                         free(thread_out);  // precisa? alocada na tarefa da thread
                     }
-
-                    // printf("%f %f", seq_out, conc_out);
+                    
                     free(tid);
 
                     // Verificação da corretude:
@@ -130,7 +128,7 @@ int main(int argc, char *argv[])
                     sprintf
                     (
                         case_string,
-                        "no caso da funcao %d com %d subintervalos e %d threads\0",
+                        "no caso da funcao %d com %d subintervalos e %d threads",
                         f_idx + 1,
                         n_subintervals[n_idx],
                         n_threads[t_idx]
@@ -185,16 +183,65 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-// Definições de funções:
-
 void* integrate_subinterval(void* arg)
 /* Tarefa executada pelas threads concorrentes. */
 {
-    double* output;
+    thread_args args = *((thread_args*) arg);
 
+    // "Unpacking" os argumentos:
+
+    int id = args.thread_id;
+    int curr_n_thr = args.n_threads;
+    int f_id = args.function_id;
+    int curr_n_subs = args.n_subintervals;
+    
+    double h = (max_x - min_x) / curr_n_subs;
+
+    int chunk_size = curr_n_subs / curr_n_thr;
+    // subintervalos por thread
+
+    int max_iter = chunk_size;  // número de iterações
+
+    if (id == curr_n_thr - 1)
+    {
+        max_iter += curr_n_subs % curr_n_thr;
+        // se for a última thread, seguir até o fim
+    }
+
+    double* output;  // para retornar
     output = (double*) safe_malloc(sizeof(double));
+    *output = 0;  // acumulador
 
-    *output = 0;
+    double min_xk, max_xk;
+    // extremos do intervalo em cada iteração
+    min_xk = min_x + id * h * chunk_size;
+    double min_f, max_f;
+    // valores da função nos extremos
+    min_f = test_functions[f_id](min_xk);
+
+    // Aplicando a fórmula do método do trapézio a
+    // cada subintervalo que compete à thread:
+
+    for (int k = 0; k < max_iter; k++)
+    {
+        max_xk = min_xk + h;
+        max_f = test_functions[f_id](max_xk);
+
+        *output += min_f + max_f;
+
+        min_xk = max_xk;
+        min_f = max_f;
+    }
+
+    *output *= h / 2;
+    // fazendo isso por último para diminuir a quantidade de
+    // operações, e, com isso, o erro numérico (coloquei o
+    // fator comum em evidência)
+
+    free(arg);
+    // (percebi que tinha que liberar aqui dentro, ou corria
+    // o risco de a main liberar antes de a thread terminar de
+    // usar hihi)
 
     pthread_exit((void*) output);
 }
