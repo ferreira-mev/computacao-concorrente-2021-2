@@ -46,7 +46,7 @@ typedef struct
 double min_x = 1.0;
 double max_x = 11.0;  // integração em [1, 11]
 
-void* integrate_subinterval(void* arg);
+void* integrate_subinterval_conc(void* arg);
 
 // Fluxo da thread principal:
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
                         curr_args->function_id = f_idx;
                         curr_args->n_subintervals = n_subintervals[n_idx];
 
-                        if (pthread_create(tid + t, NULL, integrate_subinterval, (void*) curr_args))
+                        if (pthread_create(tid + t, NULL, integrate_subinterval_conc, (void*) curr_args))
                         {
                             fprintf(stderr, "Falha na criacao das threads");
                             return EXIT_FAILURE;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void* integrate_subinterval(void* arg)
+void* integrate_subinterval_conc(void* arg)
 /* Tarefa executada pelas threads concorrentes. */
 {
     thread_args args = *((thread_args*) arg);
