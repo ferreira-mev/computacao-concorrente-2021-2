@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
                         puts("[main] na comparacao com o resultado \"analitico\":");
                         printf("[main] Saida concorrente: %f\n", conc_out);
                         printf("[main] Resultado \"analitico\" + maior termo do erro: %f\n", analytical);
-                        printf("[main] (Diferença absoluta: %f)\n", fabs(seq_out - conc_out));
+                        printf("[main] (Diferença absoluta: %f)\n", fabs(analytical - conc_out));
 
                         puts("");
 
