@@ -58,11 +58,11 @@ int main(int argc, char *argv[])
     printf("[main] Testando: F2(1) = %f\n", test_primitives[1](1));
 
     pthread_t* tid;
-    double seq_out;
+    double seq_out, conc_out;
     double* thread_out;
-    double conc_out;
+    double analytical, h;  // p/ comparar conc e "analítico"
 
-    double delta = pow(10, -6);  // p/ comparar seq e conc
+    double delta = pow(10, -6);  // p/ comparar valores double
 
     // P/ marcação de tempo:
     double t0, tf, dt;  // instantes inicial e final, e duração
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
                     // printf("%f %f", seq_out, conc_out);
                     free(tid);
 
-                    // Comparando resultados sequencial e concorrente:
+                    // Verificação da corretude:
 
                     char case_string[100];
 
@@ -136,19 +136,45 @@ int main(int argc, char *argv[])
                         n_threads[t_idx]
                     );
 
-                    seq_out = 1.0;
+                    // Comparando resultados sequencial e concorrente:
 
-                    if (!compare_doubles(seq_out, conc_out, pow(10, -6)))
+                    seq_out = 1.0;  // forçando erro para testar o teste
+
+                    if (!compare_doubles(seq_out, conc_out, delta))
                     {
-                        printf("[main] Erro %s:\n", case_string);
-                        printf("[main] Saida sequencial: %f\n", seq_out);
+                        printf("[main] Erro %s,\n", case_string);
+                        puts("[main] na comparacao com o resultado sequencial:");
                         printf("[main] Saida concorrente: %f\n", conc_out);
+                        printf("[main] Saida sequencial: %f\n", seq_out);
                         printf("[main] (Diferença absoluta: %f)\n", fabs(seq_out - conc_out));
 
                         puts("");
 
                     }
 
+                    /* Comparando resultado concorrente com a integral
+                    calculada a partir da primitiva analítica, somada ao
+                    maior termo do erro de aproximação esperado: */
+
+                    analytical = test_primitives[f_idx](max_x) - test_primitives[f_idx](min_x);
+
+                    h = (max_x - min_x) / n_subintervals[n_idx];
+                    // comprimento do subintervalo
+
+                    analytical += pow(h, 2) * (test_derivatives[f_idx](max_x) - test_derivatives[f_idx](min_x)) / 12;
+
+                    if (!compare_doubles(analytical, conc_out, delta))
+                    {
+                        printf("[main] Erro %s,\n", case_string);
+                        puts("[main] na comparacao com o resultado \"analitico\":");
+                        printf("[main] Saida concorrente: %f\n", conc_out);
+                        printf("[main] Resultado \"analitico\" + maior termo do erro: %f\n", analytical);
+                        printf("[main] (Diferença absoluta: %f)\n", fabs(seq_out - conc_out));
+
+                        puts("");
+
+                    }
+                    
                 }
             }
         }
