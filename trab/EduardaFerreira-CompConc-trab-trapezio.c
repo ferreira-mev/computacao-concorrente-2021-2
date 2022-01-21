@@ -13,7 +13,7 @@ Paralelização da integração numérica pelo método do trapézio.
 #include <math.h>
 
 int n_threads[6] = { 1, 2, 4, 6, 8, 10 };
-int n_subintervals[3] = { 10, 100, 1000 };
+int n_subintervals[3] = { 1000, 10000, 100000 };
 int n_runs = 5;
 
 typedef struct
@@ -56,14 +56,21 @@ int main(int argc, char *argv[])
 {
     puts("[main] Iniciando execucao");
 
-    // printf("[main] Testando: f1(0) = %f\n", test_functions[2](0));
+    printf("[main] Testando: f1(0) = %f\n", test_functions[2](0));
 
-    // printf("[main] Testando: F2(1) = %f\n", test_primitives[1](1));
+    printf("[main] Testando: F2(1) = %f\n", test_primitives[1](1));
 
     pthread_t* tid;
     double seq_out;
     double* thread_out;
     double conc_out;
+
+    double delta = pow(10, -6);  // p/ comparar seq e conc
+
+    // P/ marcação de tempo:
+    double t0, tf, dt;  // instantes inicial e final, e duração
+    
+    // (definir arrays multi p/ guardar medições de tempo)
 
     for (int f_idx = 0; f_idx < 3; f_idx++)  // p/ cada função de teste
     {
@@ -117,6 +124,12 @@ int main(int argc, char *argv[])
                     }
 
                     free(tid);
+
+                    // Comparando resultados sequencial e concorrente:
+
+                    // (remember: fabs, not abs, for double)
+
+                    // https://floating-point-gui.de/errors/comparison/
                 }
             }
         }
