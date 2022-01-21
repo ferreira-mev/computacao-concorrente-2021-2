@@ -46,7 +46,21 @@ typedef struct
 double min_x = 1.0;
 double max_x = 11.0;  // integração em [1, 11]
 
-void* integrate_subinterval_conc(void* arg);
+void* integrate_subinterval(void* arg);
+
+double integrate_seq(int f_id, int curr_n_subs);
+
+/* Desta vez, diferentemente do que havia comentado em um laboratório 
+anterior, eu optei por NÃO tentar deixar as funções sequencial e
+concorrente o mais semelhantes o possível, no tocante a argumentos etc.
+Tomei essa decisão porque considerei que, no caso de uma implementação
+apenas sequencial, não haveria nenhum motivo para, por exemplo, usar 
+structs ou variáveis globais em lugar de múltiplos argumentos. Como 
+essas escolhas de implementação são forçadas pela concorrência, achei 
+que faria sentido medir qualquer (des)vantagem introduzida por elas 
+em termos de tempo de execução, para me aproximar melhor de uma 
+observação real das vantagens "líquidas" oferecidas pela concorrência,
+descontados seus "custos". */
 
 // Fluxo da thread principal:
 
@@ -59,7 +73,7 @@ int main(int argc, char *argv[])
     double* thread_out;  // recebe a saída de cada thread
     double analytical, h;  // p/ comparar conc e "analítico"
 
-    double delta = pow(10, -10);  // p/ comparar valores double
+    double delta = pow(10, -6);  // p/ comparar valores double
 
     // P/ marcação de tempo:
     double t0, tf, dt;  // instantes inicial e final, e duração
@@ -72,7 +86,7 @@ int main(int argc, char *argv[])
         {
             for (int r = 0; r < n_runs; r++) // p/ cada repetição da medição
             {
-                // medir seq aqui
+                seq_out = integrate_seq(f_idx, n_subintervals[n_idx]);
 
                 for (int t_idx = 0; t_idx < 6; t_idx++)  // p/ cada qtd de threads
                 {
@@ -90,13 +104,11 @@ int main(int argc, char *argv[])
                         curr_args = (thread_args*) safe_malloc(sizeof(thread_args));
 
                         curr_args->thread_id = t;
-                        printf("t = %d\n", t);
-                        printf("curr_args->thread_id = %d\n", curr_args->thread_id);
                         curr_args->n_threads = n_threads[t_idx];
                         curr_args->function_id = f_idx;
                         curr_args->n_subintervals = n_subintervals[n_idx];
 
-                        if (pthread_create(tid + t, NULL, integrate_subinterval_conc, (void*) curr_args))
+                        if (pthread_create(tid + t, NULL, integrate_subinterval, (void*) curr_args))
                         {
                             fprintf(stderr, "Falha na criacao das threads");
                             return EXIT_FAILURE;
@@ -136,8 +148,6 @@ int main(int argc, char *argv[])
 
                     // Comparando resultados sequencial e concorrente:
 
-                    seq_out = 1.0;  // forçando erro para testar o teste
-
                     if (!compare_doubles(seq_out, conc_out, delta))
                     {
                         printf("[main] Erro %s,\n", case_string);
@@ -159,7 +169,22 @@ int main(int argc, char *argv[])
                     h = (max_x - min_x) / n_subintervals[n_idx];
                     // comprimento do subintervalo
 
+                    // Uma observação: estou calculando esse h em três 
+                    // lugares: aqui, na implementação sequencial e
+                    // na concorrente. No entanto, como ele muda com
+                    // as iterações, achei melhor fazer isso do que usar
+                    // uma variável global e precisar me preocupar com
+                    // o controle do acesso a ela; por exemplo, uma 
+                    // thread criada com um determinado valor de n
+                    // poderia ler h quando a thread principal já
+                    // o tivesse recalculado com outro n.
+
                     analytical += pow(h, 2) * (test_derivatives[f_idx](max_x) - test_derivatives[f_idx](min_x)) / 12;
+                    // cálculo direto a partir do resultado analítico,
+                    // acrescido do maior termo do erro de aproximação 
+                    // (também analítico, distinto do erro numérico
+                    // introduzido pelo limite da precisão da máquina;
+                    // vide relatório)
 
                     if (!compare_doubles(analytical, conc_out, delta))
                     {
@@ -183,8 +208,43 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void* integrate_subinterval_conc(void* arg)
-/* Tarefa executada pelas threads concorrentes. */
+
+double integrate_seq(int f_id, int curr_n_subs)
+/* Implementação sequencial do método do trapézio. */
+{
+    double h = (max_x - min_x) / curr_n_subs;
+    double output = 0.0;
+
+    double min_xk, max_xk;
+    // extremos do intervalo em cada iteração
+    min_xk = min_x;
+    double min_f, max_f;
+    // valores da função nos extremos
+    min_f = test_functions[f_id](min_xk);
+
+    // Aplicando a fórmula do método do trapézio a
+    // cada subintervalo que compete à thread:
+
+    for (int k = 0; k < curr_n_subs; k++)
+    {
+        max_xk = min_xk + h;
+        max_f = test_functions[f_id](max_xk);
+
+        output += min_f + max_f;
+
+        min_xk = max_xk;
+        min_f = max_f;
+    }
+
+    output *= h / 2;
+
+    return output;
+}
+
+
+void* integrate_subinterval(void* arg)
+/* Tarefa executada por cada thread na implementação
+concorrente do método do trapézio. */
 {
     thread_args args = *((thread_args*) arg);
 
@@ -196,6 +256,7 @@ void* integrate_subinterval_conc(void* arg)
     int curr_n_subs = args.n_subintervals;
     
     double h = (max_x - min_x) / curr_n_subs;
+    // tamanho do subintervalo
 
     int chunk_size = curr_n_subs / curr_n_thr;
     // subintervalos por thread
@@ -210,7 +271,7 @@ void* integrate_subinterval_conc(void* arg)
 
     double* output;  // para retornar
     output = (double*) safe_malloc(sizeof(double));
-    *output = 0;  // acumulador
+    *output = 0.0;  // acumulador
 
     double min_xk, max_xk;
     // extremos do intervalo em cada iteração

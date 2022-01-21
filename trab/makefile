@@ -1,14 +1,14 @@
 CC = gcc
 CFLAGS = -Wall -lpthread -lm
-OBJS = trapezio.o testfunctions.o helperfunctions.o
+OBJS = trapezoidal_rule.o testfunctions.o helperfunctions.o
 
-trapezio.exe: objects
+trapezoidal_rule.exe: objects
 	$(CC) $(CFLAGS) $(OBJS) -o $@
 
 objects: $(OBJS)
 
-trapezio.o: trapezio.c
-	$(CC) -c $(CFLAGS) trapezio.c
+trapezoidal_rule.o: trapezoidal_rule.c
+	$(CC) -c $(CFLAGS) trapezoidal_rule.c
 
 testfunctions.o: testfunctions.c
 	$(CC) -c $(CFLAGS) testfunctions.c
@@ -16,8 +16,8 @@ testfunctions.o: testfunctions.c
 helperfunctions.o: helperfunctions.c
 	$(CC) -c $(CFLAGS) helperfunctions.c
 
-run: trapezio.exe
-	./trapezio.exe
+run: trapezoidal_rule.exe
+	./trapezoidal_rule.exe
 
 clean:
 	rm $(wildcard *.o) $(wildcard *.exe)
