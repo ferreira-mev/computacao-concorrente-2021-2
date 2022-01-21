@@ -14,6 +14,7 @@ Paralelização da integração numérica pelo método do trapézio.
 
 #include "../lab02/timer.h"
 #include "testfunctions.h"
+#include "helperfunctions.h"
 
 int n_threads[6] = { 1, 2, 4, 6, 8, 10 };
 int n_subintervals[3] = { 1000, 10000, 100000 };
@@ -44,9 +45,7 @@ typedef struct
 double min_x = 1.0;
 double max_x = 11.0;  // integração em [1, 11]
 
-void* safe_malloc(size_t size);
 void* integrate_subinterval(void* arg);
-
 
 // Fluxo da thread principal:
 
@@ -139,20 +138,6 @@ int main(int argc, char *argv[])
 }
 
 // Definições de funções:
-
-void* safe_malloc(size_t size)
-/* "Wrap" para a função malloc com verificação de falha na alocação. */
-{
-   void* ptr = malloc(size);
-
-   if (!ptr)
-   {
-      fprintf(stderr, "Falha na alocacao de memoria\n");
-      exit(EXIT_FAILURE);
-   }
-
-   return ptr;
-}
 
 void* integrate_subinterval(void* arg)
 /* Tarefa executada pelas threads concorrentes. */

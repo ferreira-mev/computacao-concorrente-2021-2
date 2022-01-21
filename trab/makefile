@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -lpthread -lm
-OBJS = trapezio.o testfunctions.o
+OBJS = trapezio.o testfunctions.o helperfunctions.o
 
 trapezio.exe: objects
 	$(CC) $(CFLAGS) $(OBJS) -o $@
@@ -12,6 +12,9 @@ trapezio.o: trapezio.c
 
 testfunctions.o: testfunctions.c
 	$(CC) -c $(CFLAGS) testfunctions.c
+
+helperfunctions.o: helperfunctions.c
+	$(CC) -c $(CFLAGS) helperfunctions.c
 
 run: trapezio.exe
 	./trapezio.exe
