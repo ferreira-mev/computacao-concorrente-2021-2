@@ -19,4 +19,5 @@ lab07/cods-lab7
 __pycache__
 outputLE.py
 cci
+*.bkp
 
