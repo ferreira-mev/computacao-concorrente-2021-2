@@ -91,6 +91,35 @@ int main(int argc, char *argv[])
 
     for (int f_idx = 0; f_idx < N_TEST_FOOS; f_idx++)  // p/ cada função de teste
     {
+        FILE* csv_file = fopen(csv_filename(csv_dir, f_idx), "w");
+        // csv p/ armazenar medidas de tempo referentes a essa f
+
+        if (!csv_file)
+        {
+            fprintf(stderr, "Falha na geracao do arquivo de saida\n");
+            exit(EXIT_FAILURE);   
+        }  // else implícito
+
+        // Cabeçalho do csv:
+
+        fprintf(csv_file, "n,");
+
+        for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
+        // (não dá pra aproveitar o outro loop porque preciso do 
+        // cabeçalho primeiro)
+        {
+            fprintf(csv_file, "%d", n_threads[t_idx]);
+
+            if (t_idx < N_THREADS_LEN - 1)  // não é a última pos
+            {
+                fprintf(csv_file, ",");
+            }
+            else  // última pos, pular linha
+            {
+                fprintf(csv_file, "\n");
+            }
+        }
+
         for (int n_idx = 0; n_idx < N_SUBS_LEN; n_idx++)  // p/ cada qtd de subintervalos
         {
             for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
@@ -238,6 +267,9 @@ int main(int argc, char *argv[])
             }  // p/ cada qtd de threads
 
         }  // p/ cada qtd de subintervalos
+
+        fclose(csv_file);
+
     }  // p/ cada função de teste
 
     puts("[main] Encerrando execucao com sucesso");
