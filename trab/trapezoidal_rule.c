@@ -91,34 +91,41 @@ int main(int argc, char *argv[])
 
     for (int f_idx = 0; f_idx < N_TEST_FOOS; f_idx++)  // p/ cada função de teste
     {
-        FILE* csv_file = fopen(csv_filename(csv_dir, f_idx), "w");
+        FILE* time_file = fopen(csv_filename(csv_dir, "time", f_idx), "w");
         // csv p/ armazenar medidas de tempo referentes a essa f
+        FILE* acc_file = fopen(csv_filename(csv_dir, "acc", f_idx), "w");
+        // csv p/ armazenar medidas de aceleração referentes a essa f
 
-        if (!csv_file)
+        if (!time_file || !acc_file)
         {
-            fprintf(stderr, "Falha na geracao do arquivo de saida\n");
+            fprintf(stderr, "Falha na geracao dos arquivos de saida\n");
             exit(EXIT_FAILURE);   
         }  // else implícito
 
-        // Cabeçalho do csv:
+        // Cabeçalho dos csvs:
 
-        fprintf(csv_file, "n,");
+        FILE* file_ptrs[] = {time_file, acc_file};
 
-        for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
-        // (não dá pra aproveitar o outro loop porque preciso do 
-        // cabeçalho primeiro)
+        for (int i = 0; i < 2; i++)  // p/ cada arquivo csv de saída
         {
-            fprintf(csv_file, "%d", n_threads[t_idx]);
+            FILE* curr_file = file_ptrs[i];
 
-            if (t_idx < N_THREADS_LEN - 1)  // não é a última pos
+            fprintf(curr_file, "n");
+
+            if (!i)  // time_file (pouco abstrato, mas vá; é C anyway :P)
             {
-                fprintf(csv_file, ",");
+                fprintf(curr_file, ",*");  // p/ o tempo sequencial
             }
-            else  // última pos, pular linha
+
+            for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
+            // (não dá pra aproveitar o outro loop porque preciso do 
+            // cabeçalho primeiro)
             {
-                fprintf(csv_file, "\n");
+                fprintf(curr_file, ",%d", n_threads[t_idx]);
             }
-        }
+
+            fprintf(curr_file, "\n");
+        }  // p/ cada arquivo csv de saída
 
         for (int n_idx = 0; n_idx < N_SUBS_LEN; n_idx++)  // p/ cada qtd de subintervalos
         {
@@ -252,7 +259,6 @@ int main(int argc, char *argv[])
                         printf("[main] (Diferença absoluta: %f)\n", fabs(analytical - conc_out));
 
                         puts("");
-
                     }
                     
                 }  // p/ cada repetição da medição
@@ -266,9 +272,51 @@ int main(int argc, char *argv[])
 
             }  // p/ cada qtd de threads
 
+            // Registrando o valor de n:
+
+            for (int i = 0; i < 2; i++)
+            {
+                FILE* curr_file = file_ptrs[i];
+
+                fprintf(curr_file, "%d", n_subintervals[n_idx]);
+            }
+    
+            // Registrando o tempo medido:
+
+            for (int t_idx = -1; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads + 1
+            {
+                if (t_idx < 0)
+                // não há aceleração referente ao caso sequencial
+                // (preferi não incluir uma coluna só de 1s em toda
+                // tabela)
+                {
+                    fprintf(time_file, ",%f", t_seq[f_idx][n_idx]);
+                }
+                else
+                {
+                    fprintf(time_file, ",%f", t_conc[f_idx][n_idx][t_idx]);
+
+                    // Calculando e registrando a aceleração:
+
+                    double acc = t_seq[f_idx][n_idx] / t_conc[f_idx][n_idx][t_idx];
+                    fprintf(acc_file, ",%f", acc);
+                }
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                FILE* curr_file = file_ptrs[i];
+
+                fprintf(curr_file, "\n");
+            }
+
         }  // p/ cada qtd de subintervalos
 
-        fclose(csv_file);
+        for (int i = 0; i < 2; i++)
+        {
+            FILE* curr_file = file_ptrs[i];
+            fclose(curr_file);
+        }
 
     }  // p/ cada função de teste
 

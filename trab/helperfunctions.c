@@ -53,7 +53,7 @@ Adaptada de https://floating-point-gui.de/errors/comparison/ */
     }
 }
 
-char* csv_filename(char* csv_dir, int f_id)
+char* csv_filename(char* csv_dir, char* suffix, int f_id)
 /* Retorna o nome do arquivo csv para registro dos dados medidos,
 dados o diretório csv_dir (que deve ser uma string vazia para salvar
 no diretório atual) e o identificador f_id do caso de teste. */
@@ -62,7 +62,7 @@ no diretório atual) e o identificador f_id do caso de teste. */
     filename = (char*) safe_malloc(sizeof(char) * 100);
     // overkill de tamanho
 
-    sprintf(filename, "f%d_time.csv", f_id + 1);
+    sprintf(filename, "f%d_%s.csv", f_id + 1, suffix);
 
     if (csv_dir[0] == '\0')  // string vazia
     {
