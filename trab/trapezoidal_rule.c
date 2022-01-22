@@ -17,12 +17,12 @@ Paralelização da integração numérica pelo método do trapézio.
 #include "helperfunctions.h"
 
 #define N_THREADS_LEN 6
-#define N_SUBS_LEN 3
+#define N_SUBS_LEN 4
 #define N_TEST_FOOS 3
 #define N_RUNS 5
 
 int n_threads[N_THREADS_LEN] = { 1, 2, 4, 6, 8, 10 };
-int n_subintervals[N_SUBS_LEN] = { 1000, 10000, 100000 };
+int n_subintervals[N_SUBS_LEN] = { 1000, 10000, 100000, 1000000 };
 
 testfoo_ptr test_functions[N_TEST_FOOS] =
 {
@@ -86,6 +86,8 @@ int main(int argc, char *argv[])
 
     double t_seq[N_TEST_FOOS][N_SUBS_LEN] = {0};
     double t_conc[N_TEST_FOOS][N_SUBS_LEN][N_THREADS_LEN] = {0};
+    // arrays multid preenchidos com acumuladores, para somar
+    // N_RUNS medidas e extrair a média
 
     for (int f_idx = 0; f_idx < N_TEST_FOOS; f_idx++)  // p/ cada função de teste
     {
@@ -93,10 +95,20 @@ int main(int argc, char *argv[])
         {
             for (int r = 0; r < N_RUNS; r++) // p/ cada repetição da medição
             {
+                GET_TIME(t0);  // início da medição sequencial
                 seq_out = integrate_seq(f_idx, n_subintervals[n_idx]);
+                GET_TIME(tf);  // fim da medição sequencial
+
+                dt = tf - t0;
+
+                t_seq[f_idx][n_idx] += dt;
+
+                printf("%d %d %f\n", f_idx, n_idx, dt);
 
                 for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
                 {
+                    GET_TIME(t0);  // início da medição concorrente
+
                     int max_t = n_threads[t_idx];
                     conc_out = 0;  // acumulador
 
@@ -139,6 +151,14 @@ int main(int argc, char *argv[])
                     }
                     
                     free(tid);
+
+                    GET_TIME(tf);  // fim da medição concorrente
+
+                    dt = tf - t0;
+
+                    t_conc[f_idx][n_idx][t_idx] += dt;
+
+                    printf("%d %d %d %f\n", f_idx, n_idx, t_idx, dt);
 
                     // Verificação da corretude:
 
