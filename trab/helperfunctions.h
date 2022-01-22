@@ -18,4 +18,6 @@ void* safe_malloc(size_t size);
 
 short int compare_doubles(double x, double y, double delta);
 
+char* csv_filename(char* csv_dir, int f_id);
+
 #endif // HELPERFUNCTIONS_H

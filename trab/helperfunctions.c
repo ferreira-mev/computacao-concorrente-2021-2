@@ -11,6 +11,7 @@ fluxos de execução das threads principal e paralelas.
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
+#include <string.h>
 
 #include "helperfunctions.h"
 
@@ -49,5 +50,33 @@ Adaptada de https://floating-point-gui.de/errors/comparison/ */
     else
     {
         return abs_diff / (abs_x + abs_y) < delta;
+    }
+}
+
+char* csv_filename(char* csv_dir, int f_id)
+/* Retorna o nome do arquivo csv para registro dos dados medidos,
+dados o diretório csv_dir (que deve ser uma string vazia para salvar
+no diretório atual) e o identificador f_id do caso de teste. */
+{
+    char* filename;
+    filename = (char*) safe_malloc(sizeof(char) * 100);
+    // overkill de tamanho
+
+    sprintf(filename, "f%d_time.csv", f_id + 1);
+
+    if (csv_dir[0] == '\0')  // string vazia
+    {
+        return filename;
+    }
+    else
+    {
+        char* filename_with_path;
+        filename_with_path = (char*) safe_malloc(sizeof(char) * 256);
+        // overkill de tamanho
+
+        sprintf(filename_with_path, "%s/", csv_dir);
+        strcat(filename_with_path, filename);
+
+        return filename_with_path;
     }
 }

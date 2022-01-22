@@ -73,10 +73,12 @@ int main(int argc, char *argv[])
     double* thread_out;  // recebe a saída de cada thread
     double analytical, h;  // p/ comparar conc e "analítico"
 
-    double delta = pow(10, -6);  // p/ comparar valores double
+    double delta = pow(10, -9);  // p/ comparar valores double
 
     // P/ marcação de tempo:
     double t0, tf, dt;  // instantes inicial e final, e duração
+
+    char csv_dir[] = "csvs";  // diretório p/ salvar as medidas
     
     // (definir arrays multi p/ guardar medições de tempo)
 
@@ -135,7 +137,7 @@ int main(int argc, char *argv[])
 
                     // Verificação da corretude:
 
-                    char case_string[100];
+                    char case_string[100];  // overkill de tamanho
 
                     sprintf
                     (
