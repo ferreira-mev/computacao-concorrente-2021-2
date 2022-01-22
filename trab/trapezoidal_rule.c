@@ -93,18 +93,23 @@ int main(int argc, char *argv[])
     {
         for (int n_idx = 0; n_idx < N_SUBS_LEN; n_idx++)  // p/ cada qtd de subintervalos
         {
-            for (int r = 0; r < N_RUNS; r++)  // p/ cada repetição da medição
+            for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
             {
-                GET_TIME(t0);  // início da medição sequencial
-                seq_out = integrate_seq(f_idx, n_subintervals[n_idx]);
-                GET_TIME(tf);  // fim da medição sequencial
-
-                dt = tf - t0;
-
-                t_seq[f_idx][n_idx] += dt;
-
-                for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
+                for (int r = 0; r < N_RUNS; r++)  // p/ cada repetição da medição
                 {
+                    if (!t_idx)
+                    {
+                        // não preciso repetir a execução sequencial
+                        // p/ cada qtd de threads
+                        
+                        GET_TIME(t0);  // início da medição sequencial
+                        seq_out = integrate_seq(f_idx, n_subintervals[n_idx]);
+                        GET_TIME(tf);  // fim da medição sequencial
+
+                        dt = tf - t0;
+
+                        t_seq[f_idx][n_idx] += dt;
+                    }
                     GET_TIME(t0);  // início da medição concorrente
 
                     int max_t = n_threads[t_idx];
@@ -221,8 +226,17 @@ int main(int argc, char *argv[])
 
                     }
                     
-                }  // p/ cada qtd de threads
-            }  // p/ cada repetição da medição
+                }  // p/ cada repetição da medição
+
+                if (!t_idx)
+                {
+                    t_seq[f_idx][n_idx] /= N_RUNS;
+                }
+
+                t_conc[f_idx][n_idx][t_idx] /= N_RUNS;
+
+            }  // p/ cada qtd de threads
+
         }  // p/ cada qtd de subintervalos
     }  // p/ cada função de teste
 
