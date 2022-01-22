@@ -91,9 +91,9 @@ int main(int argc, char *argv[])
 
     for (int f_idx = 0; f_idx < N_TEST_FOOS; f_idx++)  // p/ cada função de teste
     {
-        for (int n_idx = 0; n_idx < N_SUBS_LEN; n_idx++) // p/ cada qtd de subintervalos
+        for (int n_idx = 0; n_idx < N_SUBS_LEN; n_idx++)  // p/ cada qtd de subintervalos
         {
-            for (int r = 0; r < N_RUNS; r++) // p/ cada repetição da medição
+            for (int r = 0; r < N_RUNS; r++)  // p/ cada repetição da medição
             {
                 GET_TIME(t0);  // início da medição sequencial
                 seq_out = integrate_seq(f_idx, n_subintervals[n_idx]);
@@ -102,8 +102,6 @@ int main(int argc, char *argv[])
                 dt = tf - t0;
 
                 t_seq[f_idx][n_idx] += dt;
-
-                printf("%d %d %f\n", f_idx, n_idx, dt);
 
                 for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
                 {
@@ -157,8 +155,6 @@ int main(int argc, char *argv[])
                     dt = tf - t0;
 
                     t_conc[f_idx][n_idx][t_idx] += dt;
-
-                    printf("%d %d %d %f\n", f_idx, n_idx, t_idx, dt);
 
                     // Verificação da corretude:
 
@@ -225,10 +221,10 @@ int main(int argc, char *argv[])
 
                     }
                     
-                }
-            }
-        }
-    }
+                }  // p/ cada qtd de threads
+            }  // p/ cada repetição da medição
+        }  // p/ cada qtd de subintervalos
+    }  // p/ cada função de teste
 
     puts("[main] Encerrando execucao com sucesso");
 
