@@ -16,21 +16,25 @@ Paralelização da integração numérica pelo método do trapézio.
 #include "testfunctions.h"
 #include "helperfunctions.h"
 
-int n_threads[6] = { 1, 2, 4, 6, 8, 10 };
-int n_subintervals[3] = { 1000, 10000, 100000 };
-int n_runs = 5;
+#define N_THREADS_LEN 6
+#define N_SUBS_LEN 3
+#define N_TEST_FOOS 3
+#define N_RUNS 5
 
-testfoo_ptr test_functions[3] =
+int n_threads[N_THREADS_LEN] = { 1, 2, 4, 6, 8, 10 };
+int n_subintervals[N_SUBS_LEN] = { 1000, 10000, 100000 };
+
+testfoo_ptr test_functions[N_TEST_FOOS] =
 {
     test_f1, test_f2, test_f3
 };
 
-testfoo_ptr test_primitives[3] =
+testfoo_ptr test_primitives[N_TEST_FOOS] =
 {
     primitive_f1, primitive_f2, primitive_f3
 };
 
-testfoo_ptr test_derivatives[3] =
+testfoo_ptr test_derivatives[N_TEST_FOOS] =
 {
     derivative_f1, derivative_f2, derivative_f3
 };
@@ -82,15 +86,15 @@ int main(int argc, char *argv[])
     
     // (definir arrays multi p/ guardar medições de tempo)
 
-    for (int f_idx = 0; f_idx < 3; f_idx++)  // p/ cada função de teste
+    for (int f_idx = 0; f_idx < N_TEST_FOOS; f_idx++)  // p/ cada função de teste
     {
-        for (int n_idx = 0; n_idx < 3; n_idx++) // p/ cada qtd de subintervalos
+        for (int n_idx = 0; n_idx < N_SUBS_LEN; n_idx++) // p/ cada qtd de subintervalos
         {
-            for (int r = 0; r < n_runs; r++) // p/ cada repetição da medição
+            for (int r = 0; r < N_RUNS; r++) // p/ cada repetição da medição
             {
                 seq_out = integrate_seq(f_idx, n_subintervals[n_idx]);
 
-                for (int t_idx = 0; t_idx < 6; t_idx++)  // p/ cada qtd de threads
+                for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
                 {
                     int max_t = n_threads[t_idx];
                     conc_out = 0;  // acumulador
