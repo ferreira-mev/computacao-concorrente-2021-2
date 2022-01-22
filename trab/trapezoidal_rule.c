@@ -83,8 +83,9 @@ int main(int argc, char *argv[])
     double t0, tf, dt;  // instantes inicial e final, e duração
 
     char csv_dir[] = "csvs";  // diretório p/ salvar as medidas
-    
-    // (definir arrays multi p/ guardar medições de tempo)
+
+    double t_seq[N_TEST_FOOS][N_SUBS_LEN] = {0};
+    double t_conc[N_TEST_FOOS][N_SUBS_LEN][N_THREADS_LEN] = {0};
 
     for (int f_idx = 0; f_idx < N_TEST_FOOS; f_idx++)  // p/ cada função de teste
     {
