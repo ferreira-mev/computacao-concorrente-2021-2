@@ -17,12 +17,12 @@ Paralelização da integração numérica pelo método do trapézio.
 #include "helperfunctions.h"
 
 #define N_THREADS_LEN 6
-#define N_SUBS_LEN 4
+#define N_SUBS_LEN 5
 #define N_TEST_FOOS 3
 #define N_RUNS 5
 
-int n_threads[N_THREADS_LEN] = { 1, 2, 4, 6, 8, 10 };
-int n_subintervals[N_SUBS_LEN] = { 1000, 10000, 100000, 1000000 };
+int n_threads[N_THREADS_LEN];
+int n_subintervals[N_SUBS_LEN];
 
 testfoo_ptr test_functions[N_TEST_FOOS] =
 {
@@ -78,6 +78,21 @@ int main(int argc, char *argv[])
     double analytical, h;  // p/ comparar conc e "analítico"
 
     double delta = pow(10, -9);  // p/ comparar valores double
+
+    // Inicializando valores para teste:
+
+    for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
+    {
+        if (!t_idx) { n_threads[t_idx] = 1; }
+        else { n_threads[t_idx] = 2 * t_idx; }
+    }
+
+    for (int n_idx = 0; n_idx < N_SUBS_LEN; n_idx++)  // p/ cada qtd de subintervalos
+    {
+        if (!n_idx) { n_subintervals[n_idx] = 1000; }
+        else { n_subintervals[n_idx] = 10 * n_subintervals[n_idx - 1]; }
+        // (já que pow retorna double)
+    }
 
     // P/ marcação de tempo:
     double t0, tf, dt;  // instantes inicial e final, e duração
