@@ -22,4 +22,8 @@ cci
 *.bkp
 trab/tex/template-latex
 personaldata.tex
+*.bcf
+*.bbl
+*.blg
+*.run.xml
 
