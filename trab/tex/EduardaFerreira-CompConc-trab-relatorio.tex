@@ -1,0 +1,85 @@
+% !TEX program = xelatex
+
+\documentclass{article}
+
+\input{personaldata.tex} % (so my full name and DRE won't be on GitHub)
+
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xurl}  % linebreaks at any character
+
+\usepackage{graphicx}
+\graphicspath{ {..} }
+
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    citecolor=blue,
+    linkcolor=gray,
+    filecolor=magenta,      
+    urlcolor=blue
+}
+
+\urlstyle{same}
+
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily,
+  breaklines=true,
+  breakatwhitespace=false
+} 
+
+\usepackage[style=numeric, sorting=nyt]{biblatex}
+
+\addbibresource{EduardaFerreira-CompConc-trab-relatorio.bib}
+
+\begin{document}
+
+\begin{center}
+  \begin{Large}
+    \textbf{Trabalho de Implementação}
+  \end{Large}
+
+  \vspace{8pt}
+
+  \begin{large}
+    \textbf{Computação Concorrente (MAB-117) — 2021/2}
+  \end{large}
+
+  \vspace{8pt}
+
+  \begin{Large}
+    \textbf{Implementação paralela do método do trapézio para integração numérica}
+  \end{Large}
+
+  \vspace{12pt}
+
+  \begin{large}
+    \textbf{\fullname\textsuperscript{1}}  % as defined in personaldata.tex
+
+    \vspace{5pt}
+
+    \textsuperscript{1}Graduação em Matemática Aplicada, IM, UFRJ; DRE \DRE % as defined in personaldata.tex
+  \end{large}
+
+\end{center}
+
+  \section{Descrição do problema}
+
+  \cite{cci}
+
+  \section{Projeto e implementação da solução concorrente}
+
+  \section{Casos de teste}
+
+  \section{Avaliação de desempenho}
+
+  \section{Discussão}
+
+  \section{Referências bibliográficas}
+
+  \printbibliography
+
+\end{document}
