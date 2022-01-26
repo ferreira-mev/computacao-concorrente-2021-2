@@ -17,7 +17,7 @@
 \hypersetup{
     colorlinks=true,
     citecolor=blue,
-    linkcolor=gray,
+    linkcolor=blue,
     filecolor=magenta,      
     urlcolor=blue
 }
@@ -79,22 +79,31 @@
   
   Na disciplina de CC I, fizemos tanto um estudo teórico/analítico de alguns algoritmos para aproximação numérica de integrais quanto uma implementação prática desses algoritmos, em sua forma sequencial, em linguagem Python; ambos incluíram o estudo dos erros de aproximação (analítico) e numérico. 
   
-  Um dos métodos estudados foi o do trapézio, que recebe esse nome devido a sua interpretação geométrica. No caso de funções reais de uma variável real, sabe-se que a integral definida de $f$ em $[a, b]$ fornece a ``área com sinal'' sob o gráfico da função no intervalo de integração, i.e., a medida da área entre o lugar geométrico dos pontos $(x, f(x))$, $a \leq x \leq b$, multiplicada por -1 nas regiões onde $f(x) < 0$, e novamente multiplicada por -1 se $b < a$. 
+  Um dos métodos estudados foi o do trapézio, que recebe esse nome devido a sua interpretação geométrica. No caso de funções reais de uma variável real, sabe-se que a integral definida de $f$ em $[a, b]$ fornece a ``área com sinal'' sob o gráfico da função no intervalo de integração, i.e., a medida da área entre o eixo $x$ e o lugar geométrico dos pontos $(x, f(x))$, $a \leq x \leq b$, multiplicada por -1 nas regiões onde $f(x) < 0$, e novamente multiplicada por -1 se $b < a$. 
   
   No método do trapézio, particiona-se $[a, b]$ em $n \in \N \setminus \{0\}$ subintervalos $I_i = [x_i, x_{i+1}]$ e aproxima-se o valor da integral em cada subintervalo por
   $$ \frac{b-a}{n} \frac{f(x_i) + f(x_{i+1})}{2} =: h \frac{f(x_i) + f(x_{i+1})}{2},$$\noindent
-  onde $h$ é definido como o comprimento de cada subintervalo. Quando $f(x) > 0$ para todo $x \in I_i$, isso equivale à área de um trapézio de vértices $(x_i, 0)$, $(x_{i+1}, 0)$, $(x_i, f(x_i))$ e $(x_{i+1}, f(x_{i+1}))$.
+  onde $h$ é definido como o comprimento de cada subintervalo. Quando $f(x) > 0$ para todo $x \in I_i$, isso equivale à área de um trapézio de vértices $(x_i, 0)$, $(x_{i+1}, 0)$, $(x_i, f(x_i))$ e $(x_{i+1}, f(x_{i+1}))$. % imagem?
 
   Desse modo, dados $f: \R \to \R$ e $[a, b] \in \R$ e fixado um valor de $n \in \N \setminus \{0\}$, o método do trapézio nos fornece a aproximação
-  $$\int_a^b f(x) dx \approx \sum_{i=0}^{n-1} \frac{b-a}{n} \frac{f(x_i) + f(x_{i+1})}{2} = \sum_{i=0}^{n-1} h \frac{f(x_i) + f(x_{i+1})}{2}.$$
+  \begin{equation} \label{trapformula}
+    \int_a^b f(x) dx \approx \sum_{i=0}^{n-1} \frac{b-a}{n} \frac{f(x_i) + f(x_{i+1})}{2} = h \sum_{i=0}^{n-1} \frac{f(x_i) + f(x_{i+1})}{2}.
+  \end{equation}
 
-  % (interrompido aqui porque chegou a hora de um compromisso; abaixo apenas algumas coisas para não esquecer)
+  Conforme seria intuitivamente esperado, a precisão do método será tanto maior quanto for pequeno o valor de $h$. Sob a suposição que de $f$ seja duas vezes diferenciável, demonstra-se\cite{cci} que o erro total de aproximação -- aquele que é analiticamente esperado devido ao próprio método, independentemente da precisão da representação computacional com que se trabalhe -- é da ordem de $h^2$; mais especificamente, ele é dado por
+  $$ e^T_h := \frac{f'(b) -f'(a)}{12} h^2 + o(h^2), $$ \noindent
+  onde por $o(h^2)$ denota-se termos que, divididos por $h^2$, tendem a 0 quando $h \to 0$. (Vale ressaltar que, como estar-se-ia sempre trabalhando com $h \ll 1$, o que é relevante é o comportamento do erro quando $h$ é próximo de 0, e a magnitude dos termos com fatores $h^k$ será menor para $k$ maior.)
 
+  Observando \eqref{trapformula}, é possível constatar que esse algoritmo pode ser facilmente tornado paralelo, dado que os termos calculados para cada índice $i$ são independentes dos demais (exceto na medida em que, para $i < n - 1$, os valores de $f'(x_{i+1})$ reparecem como $f'(x_i)$ no termo seguinte, de modo a beneficiarem-se de alguma forma de armazenamento do valor obtido no termo anterior, numa lógica análoga à de um cache simples; entretanto, isso é uma possível otimização, e não uma dependência estrita).
+  
+  Uma vez que, numa implementação sequencial, os $n$ termos de \eqref{trapformula} seriam calculados um após o outro, pode-se esperar um ganho de perfomance ao dividi-los entre múltiplas threads de execução paralela num processador multicore, sobretudo se essa divisão for feita de modo a reduzir a quantidade de cálculos de $f'(x_i)$, alocando blocos de subintervalos consecutivos para a mesma thread.
+
+  \section{Projeto e implementação da solução concorrente}
+
+  % abaixo apenas uns rascunhos p/ não esquecer
   Além de $f$ e de $[a, b]$, para fins de avaliação de desempenho 
 
   Não incluí verificações de cunho matemático, como o pertencimento do intervalo $[a, b]$ ao domínio de $f$, que seriam de implementação complexa e fugiriam ao escopo do trabalho.
-
-  \section{Projeto e implementação da solução concorrente}
 
   \section{Casos de teste}
 
