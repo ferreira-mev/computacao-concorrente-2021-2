@@ -8,6 +8,8 @@
 \usepackage{csquotes}
 \usepackage{enumitem}
 \usepackage{xurl}  % linebreaks at any character
+\usepackage{csvsimple}
+\usepackage[tablesonly]{endfloat}
 
 \usepackage{graphicx}
 \graphicspath{ {..} }
@@ -122,6 +124,8 @@
 
   Não incluí verificações de cunho matemático, como o pertencimento do intervalo $[a, b]$ ao domínio de $f$, que seriam de implementação complexa e fugiriam ao escopo do trabalho.
 
+  Para reduzir a quantidade de linhas do arquivo contendo o programa principal, com o algoritmo do método de trapézio e a execução dos testes, movi as funções de teste para o arquivo separado \texttt{testfunctions.c}, e algumas funções auxiliares para \texttt{helperfunctions.c}.
+
   \section{Casos de teste} \label{tests}
 
   A corretude da implementação concorrente do método do trapézio foi verificada por meio de duas comparações:
@@ -166,11 +170,36 @@
 
   \section{Avaliação de desempenho} \label{perf}
 
+  As mesmas funções $f_1$, $f_2$ e $f_3$ (\eqref{f1}, \eqref{f2} e \eqref{f3}) foram usadas para avaliação de desempenho, bem como o intervalo $[1, 11]$, os números de threads $2k$, $1 \leq k \leq 5$, e os números de subintervalos $10^m$, $3 \leq k \leq 7$, em todas as suas combinações possíveis.
+
+  Para cada combinação, o tempo de execução das implementações sequencial e concorrente, incluindo a inicialização das threads e agregação de suas saídas no cômputo final, foi medido cinco vezes, usando a função \texttt{GET\_TIME} de \texttt{timer.h} (arquivo fornecido no laboratório 2), que retorna valores em milissegundos. (A execução sequencial não foi repetida para diferentes valores do número de threads, já que não é afetada por esse valor.) Foi considerada a média dos valores aferidos. A aceleração foi calculada como a razão entre os tempos de execução médios sequencial e concorrente, ou seja:
+  $$ \alpha = \frac{\bar{t}_{\text{seq}}}{\bar{t}_{\text{conc}}} = \frac{\frac{1}{5} \sum_{i=0}^4 t_{\text{seq}_i}}{\frac{1}{5} \sum_{i=0}^4 t_{\text{conc}_i}}.$$
+
+  As execuções e medições foram feitas numa máquina com 4 cores físicos e 8 lógicos, rodando o sistema operacional Fedora 35 Workstation. Parte da saída do comando \texttt{lscpu} é reproduzida abaixo:
+
+\begin{lstlisting}
+Architecture:            x86_64
+  CPU op-mode(s):        32-bit, 64-bit
+    ...
+CPU(s):                  8
+  On-line CPU(s) list:   0-7
+Vendor ID:               GenuineIntel
+  Model name:            Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
+    CPU family:          6
+    Model:               158
+    Thread(s) per core:  2
+    Core(s) per socket:  4
+    Socket(s):           1
+    Stepping:            9
+    CPU max MHz:         3800.0000
+    CPU min MHz:         800.0000
+    ...
+\end{lstlisting}
+
   Uma observação: Desta vez, diferentemente do que havia comentado em um laboratório anterior, eu optei por \emph{não} tentar deixar as funções sequencial e concorrente o mais semelhantes o possível, no tocante a argumentos etc. Tomei essa decisão porque considerei que, no caso de uma implementação apenas sequencial, não haveria nenhum motivo para, por exemplo, usar \texttt{structs} ou determinadas variáveis globais em lugar de múltiplos argumentos. Como essas escolhas de implementação são forçadas pela concorrência, achei 
   que faria sentido medir qualquer (des)vantagem introduzida por elas 
   em termos de tempo de execução, para me aproximar melhor de uma 
-  observação real das vantagens ``líquidas''\ oferecidas pela concorrência, descontados seus ``custos''
-
+  observação real das vantagens ``líquidas''\ oferecidas pela concorrência, descontados seus ``custos''.
 
   \section{Discussão} \label{disc}
 
