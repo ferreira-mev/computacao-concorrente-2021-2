@@ -108,17 +108,21 @@
 
   Optei por esta última divisão para reduzir a quantidade de operações efetuadas alocando subintervalos com índices consecutivos para a mesma thread, assim permitindo que os valores de $x_{i+1}$ e $f'(x_{i+1})$ computados numa iteração sejam mantidos na memória e reproveitados como $x_i$ e $f'(x_i)$ na iteração seguinte (vide seção \ref{descr}).
 
-  % abaixo apenas uns rascunhos p/ não esquecer
+  No mais, os extremos do intervalo $[a, b]$ e as funções de C que implementam as funções matemáticas a integrar foram representadas por variáveis globais, de modo a serem facilmente acessíveis por todas as threads e pela implementação sequencial usada para comparação (vide \ref{tests}). Incluí também o número $n$ de subintervalos como parâmetro.
+  
+  Os parâmetros necessários para a tarefa executada pelas threads são passados na forma de um \texttt{struct}. Como o trabalho previa uma etapa de testes e outra de avaliação de desempenho (cf.\ \ref{tests} e \ref{perf}), as funções já foram implementadas com essas finalidades em mente; dessa forma, além da identificação da thread, da quantidade total de threads e do número de subintervalos (estes dois últimos, para determinar quais subintervalos a thread deve considerar), é passado a cada thread o índice para acesso da função a integrar no array de casos de teste.
+
+  Não variei os valores de $a$ e $b$ ao realizar as verificações e medições, pois o programa já estava gerando uma grande quantidade de medidas para as diferentes funções e números de threads e de subintervalos. Visto que a avaliação a ser feita era apenas do tempo de execução e não, por exemplo, da precisão do método sob diferentes condições, julguei que não seria necessário gerar mais tabelas para diferentes $[a, b]$, como o número de operações é afetado apenas pela quantidade de subintervalos e não por \emph{quais} eles são. Escolhi o intervalo de integração $[1, 11]$ por pertencer ao domínio de todas as funções em estudo e por não seus elementos não gerarem problemas de under ou overflow aritmético ao serem representados como double em C e passarem pelas operações envolvidas nos testes (que vão desde a divisão por $10^7$ até a elevação à sexta potência). Assim, como o intervalo manteve-se inalterado, seus extremos foram representados por variáveis globais acessadas diretamente pelas threads ou pela função sequencial, e não por parâmetros.
+
+  Os parâmetros da função sequencial são o índice da função a integrar e a quantidade $n$ de subintervalos.
 
   O somatório dos valores de \eqref{trapterm} computados por cada thread é somado e retornado à thread principal, que agrega essas somas parciais num somatório total correspondente a \eqref{trapformula}.
 
-  Além de $f$ e de $[a, b]$, para fins de avaliação de desempenho 
-
   Não incluí verificações de cunho matemático, como o pertencimento do intervalo $[a, b]$ ao domínio de $f$, que seriam de implementação complexa e fugiriam ao escopo do trabalho.
 
-  \section{Casos de teste}
+  \section{Casos de teste} \label{tests}
 
-  \section{Avaliação de desempenho}
+  \section{Avaliação de desempenho} \label{perf}
 
   \section{Discussão}
 
