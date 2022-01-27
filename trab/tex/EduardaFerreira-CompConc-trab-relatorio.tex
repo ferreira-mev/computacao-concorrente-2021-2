@@ -71,7 +71,7 @@
 
 \end{center}
 
-  \section{Descrição do problema}
+  \section{Descrição do problema} \label{descr}
 
   Dentre os temas sugeridos, chamou-me atenção a integração numérica, por se tratar de um assunto que eu já havia estudado no curso de Computação Científica I do prof.\ Bernardo Costa\cite{cci}. Trata-se do problema de, dadas uma função matemática e uma região de integração, calcular uma aproximação do valor da integral da função nessa região por meio de um algoritmo, sem a obtenção de uma primitiva da função em estudo. Para fins deste trabalho, restringi-me a funções reais de uma variável real, da forma $f: \R \to \R$, e intervalos reais de integração $[a, b] \in \R$, com $-\infty < a < b < \infty$.
 
@@ -82,7 +82,9 @@
   Um dos métodos estudados foi o do trapézio, que recebe esse nome devido a sua interpretação geométrica. No caso de funções reais de uma variável real, sabe-se que a integral definida de $f$ em $[a, b]$ fornece a ``área com sinal'' sob o gráfico da função no intervalo de integração, i.e., a medida da área entre o eixo $x$ e o lugar geométrico dos pontos $(x, f(x))$, $a \leq x \leq b$, multiplicada por -1 nas regiões onde $f(x) < 0$, e novamente multiplicada por -1 se $b < a$. 
   
   No método do trapézio, particiona-se $[a, b]$ em $n \in \N \setminus \{0\}$ subintervalos $I_i = [x_i, x_{i+1}]$ e aproxima-se o valor da integral em cada subintervalo por
-  $$ \frac{b-a}{n} \frac{f(x_i) + f(x_{i+1})}{2} =: h \frac{f(x_i) + f(x_{i+1})}{2},$$\noindent
+  \begin{equation} \label{trapterm}
+    \frac{b-a}{n} \frac{f(x_i) + f(x_{i+1})}{2} =: h \frac{f(x_i) + f(x_{i+1})}{2},
+  \end{equation}\noindent
   onde $h$ é definido como o comprimento de cada subintervalo. Quando $f(x) > 0$ para todo $x \in I_i$, isso equivale à área de um trapézio de vértices $(x_i, 0)$, $(x_{i+1}, 0)$, $(x_i, f(x_i))$ e $(x_{i+1}, f(x_{i+1}))$. % imagem?
 
   Desse modo, dados $f: \R \to \R$ e $[a, b] \in \R$ e fixado um valor de $n \in \N \setminus \{0\}$, o método do trapézio nos fornece a aproximação
@@ -100,7 +102,16 @@
 
   \section{Projeto e implementação da solução concorrente}
 
+  Como no caso de outros algoritmos paralelos estudados na disciplina, o cálculo dos valores de \eqref{trapterm} para diferentes subintervalos pode ser distribuído entre as threads de diversas formas, dentre as quais destacam-se mais imediatamente as divisões ``em listras'' ou ``em blocos''. Por ``em listras'', quero dizer que, se há $t$ threads, o subintervalo de índice 0 caberia à thread de índice 0, $I_1$ à thread 1, ..., $I_{t - 1}$ à $t-1$, $I_{t}$ à thread 0 outra vez, $I_{t + 1}$ à $1$, e assim sucessivamente; ou seja, o subintervalo $i$ seria alocado para a thread $i \% t$.
+
+  Já a divisão que chamo de ``em blocos'' corresponderia a subdividir os $n$ subintervalos em $t$ grupos, com os $t - 1$ primeiros contendo $m := \lfloor n/t \rfloor$ subintervalos, com índices $ k m \leq i < (k+1) m$ para o grupo $k$, $0 \leq k \leq t-2$; e o último contendo os subintervalos de índices $(t-1)m \leq k \leq n - 1$. (Conforme discutido em aula, essa solução não garante um balanceamento perfeito se a quantidade $n$ de subintervalos não é divisível pela quantidade $t$ de threads; contudo, nesse caso, esse balanceamento é impossível, e essa é uma divisão simples que se aproxima bastante de uma distribuição equilibrada para $n \gg t$.)
+
+  Optei por esta última divisão para reduzir a quantidade de operações efetuadas alocando subintervalos com índices consecutivos para a mesma thread, assim permitindo que os valores de $x_{i+1}$ e $f'(x_{i+1})$ computados numa iteração sejam mantidos na memória e reproveitados como $x_i$ e $f'(x_i)$ na iteração seguinte (vide seção \ref{descr}).
+
   % abaixo apenas uns rascunhos p/ não esquecer
+
+  O somatório dos valores de \eqref{trapterm} computados por cada thread é somado e retornado à thread principal, que agrega essas somas parciais num somatório total correspondente a \eqref{trapformula}.
+
   Além de $f$ e de $[a, b]$, para fins de avaliação de desempenho 
 
   Não incluí verificações de cunho matemático, como o pertencimento do intervalo $[a, b]$ ao domínio de $f$, que seriam de implementação complexa e fugiriam ao escopo do trabalho.
