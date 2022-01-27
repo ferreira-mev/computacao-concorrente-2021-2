@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     double* thread_out;  // recebe a saída de cada thread
     double analytical, h;  // p/ comparar conc e "analítico"
 
-    double delta = pow(10, -9);  // p/ comparar valores double
+    double delta = pow(10, -8);  // p/ comparar valores double
 
     // Inicializando valores para teste:
 
@@ -113,11 +113,11 @@ int main(int argc, char *argv[])
         {
             FILE* curr_file = file_ptrs[i];
 
-            fprintf(curr_file, "n");
+            fprintf(curr_file, "$n$");
 
             if (!i)  // time_file (pouco abstrato, mas vá; é C anyway :P)
             {
-                fprintf(curr_file, ",*");  // p/ o tempo sequencial
+                fprintf(curr_file, ",seq.");  // p/ o tempo sequencial
             }
 
             for (int t_idx = 0; t_idx < N_THREADS_LEN; t_idx++)  // p/ cada qtd de threads
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
             {
                 FILE* curr_file = file_ptrs[i];
 
-                fprintf(curr_file, "%d", n_subintervals[n_idx]);
+                fprintf(curr_file, "$10^{%d}$", (3 + n_idx));
             }
     
             // Registrando o tempo medido:
@@ -293,16 +293,16 @@ int main(int argc, char *argv[])
                 // (preferi não incluir uma coluna só de 1s em toda
                 // tabela)
                 {
-                    fprintf(time_file, ",%f", t_seq[f_idx][n_idx]);
+                    fprintf(time_file, ",%.3f", t_seq[f_idx][n_idx]);
                 }
                 else
                 {
-                    fprintf(time_file, ",%f", t_conc[f_idx][n_idx][t_idx]);
+                    fprintf(time_file, ",%.3f", t_conc[f_idx][n_idx][t_idx]);
 
                     // Calculando e registrando a aceleração:
 
                     double acc = t_seq[f_idx][n_idx] / t_conc[f_idx][n_idx][t_idx];
-                    fprintf(acc_file, ",%f", acc);
+                    fprintf(acc_file, ",%.3f", acc);
                 }
             }
 
