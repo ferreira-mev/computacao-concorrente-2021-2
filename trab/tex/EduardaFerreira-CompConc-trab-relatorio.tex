@@ -93,7 +93,9 @@
   \end{equation}
 
   Conforme seria intuitivamente esperado, a precisão do método será tanto maior quanto for pequeno o valor de $h$. Sob a suposição que de $f$ seja duas vezes diferenciável, demonstra-se\cite{cci} que o erro total de aproximação -- aquele que é analiticamente esperado devido ao próprio método, independentemente da precisão da representação computacional com que se trabalhe -- é da ordem de $h^2$; mais especificamente, ele é dado por
-  $$ e^T_h := \frac{f'(b) -f'(a)}{12} h^2 + o(h^2), $$ \noindent
+  \begin{equation} \label{traperr}
+    e^T_h := \frac{f'(b)-f'(a)}{12} h^2 + o(h^2),
+  \end{equation} \noindent
   onde por $o(h^2)$ denota-se termos que, divididos por $h^2$, tendem a 0 quando $h \to 0$. (Vale ressaltar que, como estar-se-ia sempre trabalhando com $h \ll 1$, o que é relevante é o comportamento do erro quando $h$ é próximo de 0, e a magnitude dos termos com fatores $h^k$ será menor para $k$ maior.)
 
   Observando \eqref{trapformula}, é possível constatar que esse algoritmo pode ser facilmente tornado paralelo, dado que os termos calculados para cada índice $i$ são independentes dos demais (exceto na medida em que, para $i < n - 1$, os valores de $f'(x_{i+1})$ reparecem como $f'(x_i)$ no termo seguinte, de modo a beneficiarem-se de alguma forma de armazenamento do valor obtido no termo anterior, numa lógica análoga à de um cache simples; entretanto, isso é uma possível otimização, e não uma dependência estrita).
@@ -122,11 +124,57 @@
 
   \section{Casos de teste} \label{tests}
 
+  A corretude da implementação concorrente do método do trapézio foi verificada por meio de duas comparações:
+  
+  \begin{enumerate}[label=(\roman*)]
+    \item com uma versão sequencial do mesmo algoritmo, implementada no mesmo programa em C; \label{seq}
+    
+    \item com o resultado ``analítico'' (também calculado numericamente em C, porém a partir das primitivas simbólicas das funções em estudo), acrescido do primeiro termo do erro de aproximação \eqref{traperr}. (Isso pode causar estranhamento à primeira vista, porém, nos casos em que $f'$ é facilmente obtenível -- o que nem sempre se aplica aos casos em que se precisa recorrer à integração numérica --, como o erro analítico de aproximação é conhecido, uma quantidade finita de seus termos pode ser subtraída da saída do método do trapézio para gerar um resultado mais preciso. Nesse caso, restariam apenas o erro numérico e os termos de ordem maior do erro de aproximação.) \label{symb}
+  \end{enumerate}
+  
+  Para possibilitar \ref{symb}, foram escolhidas três funções de fácil integração, bem como de fácil derivação (para o cálculo do erro de aproximação \eqref{traperr}):
+  \begin{equation} \label{f1}
+   f_1(x) = 4x^5 + x^2 - 3x - 5
+  \end{equation}
+  \begin{equation} \label{f2}
+    f_2(x) = \frac{1}{x}
+  \end{equation}
+  \begin{equation} \label{f3}
+    f_3(x) = \cos{2x}
+  \end{equation}
+
+  Suas primitivas, com constante de integração zero, são
+  \begin{equation*}
+    F_1(x) = \frac{2}{3} x^6 + \frac{1}{3} x^3 - \frac{3}{2} x^2 - 5x
+  \end{equation*}
+  \begin{equation*}
+    F_2(x) = \log{x} \qquad F_3(x) = \sin{x}\cos{x},
+  \end{equation*} \noindent
+  e suas derivadas são
+  \begin{equation*}
+    f'_1(x) = 20x^4 + 2x - 3
+  \end{equation*}
+  \begin{equation*}
+    f'_2(x) = -\frac{1}{x^2} \qquad f'_3(x) = -2\sin{2x}.
+  \end{equation*}
+
+  A comparação entre números de ponto flutuante foi feita conforme \cite{float}, adotando um valor de $\delta = 10^{-9}$ como critério de proximidade relativa entre os resultados. Não houve um procedimento rigoroso para determinação do valor ideal de $\delta$, apenas uma consideração do que seria um valor ``razoável'' para verificar a corretude do algoritmo, considerando as precisões do método e da máquina e a experiência de Computação Científica I. 
+  
+  Tanto o teste \ref{seq} quanto o \ref{symb} foram executados com sucesso para todas as funções acima, para todas as combinações de números de threads $2k$, $1 \leq k \leq 5$, e números de subintervalos $10^m$, $3 \leq k \leq 7$. Observo que a variação do número $n$ de subintervalos é análoga, para este problema, à variação da dimensão dos dados de entrada, cuja necessidade havia sido apontada nas instruções do trabalho, pois é o valor de $n$ que determina o número de operações a serem realizadas.
+  
+  Foi constatado que, alterando-se $\delta$ para $10^{-10}$, passava a haver falhas no caso de $n = 1000$ subintervalos (um valor ainda relativamente pequeno), mas não para valores maiores, o que está em linha com a associação esperada entre a precisão do método e o comprimento $h$ dos subintervalos, como discutido em \ref{descr}.
+
   \section{Avaliação de desempenho} \label{perf}
 
-  \section{Discussão}
+  Uma observação: Desta vez, diferentemente do que havia comentado em um laboratório anterior, eu optei por \emph{não} tentar deixar as funções sequencial e concorrente o mais semelhantes o possível, no tocante a argumentos etc. Tomei essa decisão porque considerei que, no caso de uma implementação apenas sequencial, não haveria nenhum motivo para, por exemplo, usar \texttt{structs} ou determinadas variáveis globais em lugar de múltiplos argumentos. Como essas escolhas de implementação são forçadas pela concorrência, achei 
+  que faria sentido medir qualquer (des)vantagem introduzida por elas 
+  em termos de tempo de execução, para me aproximar melhor de uma 
+  observação real das vantagens ``líquidas''\ oferecidas pela concorrência, descontados seus ``custos''
 
-  \section{Referências bibliográficas}
+
+  \section{Discussão} \label{disc}
+
+  \section{Referências bibliográficas} \label{bibl}
 
   \printbibliography
 

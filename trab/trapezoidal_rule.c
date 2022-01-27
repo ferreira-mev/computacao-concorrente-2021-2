@@ -54,18 +54,6 @@ void* integrate_subinterval(void* arg);
 
 double integrate_seq(int f_id, int curr_n_subs);
 
-/* Desta vez, diferentemente do que havia comentado em um laboratório 
-anterior, eu optei por NÃO tentar deixar as funções sequencial e
-concorrente o mais semelhantes o possível, no tocante a argumentos etc.
-Tomei essa decisão porque considerei que, no caso de uma implementação
-apenas sequencial, não haveria nenhum motivo para, por exemplo, usar 
-structs ou variáveis globais em lugar de múltiplos argumentos. Como 
-essas escolhas de implementação são forçadas pela concorrência, achei 
-que faria sentido medir qualquer (des)vantagem introduzida por elas 
-em termos de tempo de execução, para me aproximar melhor de uma 
-observação real das vantagens "líquidas" oferecidas pela concorrência,
-descontados seus "custos". */
-
 // Fluxo da thread principal:
 
 int main(int argc, char *argv[])
