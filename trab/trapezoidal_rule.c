@@ -113,9 +113,18 @@ int main(int argc, char *argv[])
         {
             FILE* curr_file = file_ptrs[i];
 
+            if (!i)  // time_file (pouco abstrato, mas vá; é C anyway :P)
+            {
+                fprintf(curr_file, "\\begin{tabular}{||c c c c c c c c||}\n");
+            }
+            else
+            {
+                fprintf(curr_file, "\\begin{tabular}{||c c c c c c c||}\n");
+            }
+
             fprintf(curr_file, "\\hline\n$n$");
 
-            if (!i)  // time_file (pouco abstrato, mas vá; é C anyway :P)
+            if (!i)
             {
                 fprintf(curr_file, " & seq.");  // p/ o tempo sequencial
             }
