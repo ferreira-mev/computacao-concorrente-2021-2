@@ -202,7 +202,15 @@ Vendor ID:               GenuineIntel
   em termos de tempo de execução, para me aproximar melhor de uma 
   observação real das vantagens ``líquidas''\ oferecidas pela concorrência, descontados seus ``custos''.
 
-  Em todas as tabelas a seguir, os valores nos cabeçalhos das colunas são os números de threads, e $n$ é o número de subintervalos em que foi dividido o intervalo de integração $[1, 11]$. Nas tabelas com medidas de tempo, a coluna ``seq.'' registra o tempo médio de execução do algoritmo sequencial. Os valores foram arredondados após a terceira casa decimal.
+  Os resultados estão expostos nas tabelas de \ref{f1t} a \ref{f3a}. Em todas elas, os valores nos cabeçalhos das colunas são os números de threads, e $n$ é o número de subintervalos em que foi dividido o intervalo de integração $[1, 11]$. Nas tabelas com medidas de tempo, a coluna ``seq.'' registra o tempo médio de execução do algoritmo sequencial. Os valores foram arredondados após a terceira casa decimal.
+
+  \section{Discussão} \label{disc}
+
+  \section{Referências bibliográficas} \label{bibl}
+
+  \printbibliography[heading=none]
+
+  \newpage
 
   \begin{table}[h!]
     \centering
@@ -329,25 +337,5 @@ Vendor ID:               GenuineIntel
           \caption{Aceleração \eqref{acc} obtida para a função $f_3$ \eqref{f3}. }
           \label{f3a}
         \end{table}
-
-          
-
-    % \begin{table}
-    %   \begin{tabular}{c} % esse {c} é a mesma gambiarra do lab 2 :P
-    %     \csvautotabular{../csvs.bkp/f1_time.csv}
-    %   \end{tabular}
-    %   \caption{aaaa}
-    % \end{table} 
-    
-    % \begin{tabular}{c} % esse {c} é a mesma gambiarra do lab 2 :P
-      % \csvautotabular{../csvs/f1_acc.csv}
-    % \end{tabular}
-  % \end{center}
-
-  \section{Discussão} \label{disc}
-
-  \section{Referências bibliográficas} \label{bibl}
-
-  \printbibliography[heading=none]
 
 \end{document}
