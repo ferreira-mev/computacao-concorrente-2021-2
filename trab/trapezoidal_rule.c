@@ -12,7 +12,7 @@ Paralelização da integração numérica pelo método do trapézio.
 #include <time.h>
 #include <math.h>
 
-#include "../lab02/timer.h"
+#include "timer_ns.h"
 #include "testfunctions.h"
 #include "helperfunctions.h"
 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         {
             FILE* curr_file = file_ptrs[i];
 
-            fprintf(curr_file, "$n$");
+            fprintf(curr_file, "\\hline\n$n$");
 
             if (!i)  // time_file (pouco abstrato, mas vá; é C anyway :P)
             {
@@ -266,12 +266,14 @@ int main(int argc, char *argv[])
                     
                 }  // p/ cada repetição da medição
 
+                // Obtendo o tempo médio em milissegundos:
+
                 if (!t_idx)
                 {
-                    t_seq[f_idx][n_idx] /= N_RUNS;
+                    t_seq[f_idx][n_idx] /= N_RUNS * pow(10, 6);
                 }
 
-                t_conc[f_idx][n_idx][t_idx] /= N_RUNS;
+                t_conc[f_idx][n_idx][t_idx] /= N_RUNS * pow(10, 6);
 
             }  // p/ cada qtd de threads
 
