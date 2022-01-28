@@ -1,12 +1,21 @@
-*.pdf
-
-# Extensions related to the compilation of C programs:
+# Extensions related to the compilation of C or Java programs:
 *.exe
 *.o
 *.out
+*.class
 
+# Example code:
 cods-mod1-lab1
+lab05/cods-lab5
+lab07/cods-lab7
+trab/tex/template-latex
+
+# Input and output data:
+*.csv
 lab01/test_vector.txt
+trab/out/
+
+# Extensions related to the compilation of LaTeX documents:
 *.log
 *.aux
 *.dvi
@@ -14,19 +23,17 @@ lab01/test_vector.txt
 *.fls
 *latexmk
 *.gz
-*/.vscode
-*.csv
-lab05/cods-lab5
-lab07/cods-lab7
-*.class
-__pycache__
-outputLE.py
-cci
-*.bkp
-trab/tex/template-latex
-personaldata.tex
 *.bcf
 *.bbl
 *.blg
 *.run.xml
+*.ttt
 
+# Misc:
+*.pdf
+*/.vscode
+__pycache__
+outputLE.py
+cci
+*.bkp
+personaldata.tex
