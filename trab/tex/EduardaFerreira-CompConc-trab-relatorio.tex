@@ -3,14 +3,19 @@
 \documentclass{article}
 
 \input{personaldata.tex} % (so my full name and DRE won't be on GitHub)
+\input{../out/f1_time.tex}
+\input{../out/f1_acc.tex}
+\input{../out/f2_time.tex}
+\input{../out/f2_acc.tex}
+\input{../out/f3_time.tex}
+\input{../out/f3_acc.tex}
+% (estava demorando mais pra colocar o pacote foreach pra funcionar
+% com os inputs do que pra só copiar e colar isso :P)
 
 \usepackage[brazil]{babel}
 \usepackage{csquotes}
 \usepackage{enumitem}
 \usepackage{xurl}  % linebreaks at any character
-\usepackage{csvsimple}
-% \usepackage[tablesonly]{endfloat}
-% \usepackage{siunitx}
 
 \usepackage{graphicx}
 \graphicspath{ {..} }
@@ -231,128 +236,50 @@ Vendor ID:               GenuineIntel
 
   \begin{table}
     \centering
-    \begin{tabular}{||c c c c c c c c||}
-      \hline
-      $n$ & seq. & 1 & 2 & 4 & 6 & 8 & 10 \\ 
-      \hline \hline
-      $10^{3}$ & 0.058 & 0.141 & 0.119 & 0.089 & 0.121 & 0.174 & 0.217 \\ 
-      \hline 
-      $10^{4}$ & 0.460 & 0.493 & 0.316 & 0.261 & 0.230 & 0.220 & 0.273 \\ 
-      \hline 
-      $10^{5}$ & 4.871 & 4.794 & 2.373 & 1.217 & 1.273 & 1.133 & 1.868 \\ 
-      \hline 
-      $10^{6}$ & 46.798 & 44.897 & 23.276 & 11.682 & 11.796 & 9.221 & 11.675 \\ 
-      \hline 
-      $10^{7}$ & 434.588 & 426.563 & 228.206 & 159.970 & 116.615 & 122.036 & 106.057 \\ 
-      \hline 
+    \timefA
     \end{tabular}
     \caption{Tempo de execução, em milissegundos, para a função $f_1$ \eqref{f1}.}
     \label{f1t}
   \end{table}
 
-    \begin{table}
-      \centering
-      \begin{tabular}{||c c c c c c c||}
-        \hline
-        $n$ & 1 & 2 & 4 & 6 & 8 & 10 \\ 
-        \hline \hline
-        $10^{3}$ & 0.414 & 0.488 & 0.659 & 0.482 & 0.335 & 0.269 \\ 
-        \hline 
-        $10^{4}$ & 0.933 & 1.454 & 1.764 & 2.002 & 2.094 & 1.682 \\ 
-        \hline 
-        $10^{5}$ & 1.016 & 2.053 & 4.002 & 3.825 & 4.301 & 2.607 \\ 
-        \hline 
-        $10^{6}$ & 1.042 & 2.011 & 4.006 & 3.967 & 5.075 & 4.009 \\ 
-        \hline 
-        $10^{7}$ & 1.019 & 1.904 & 2.717 & 3.727 & 3.561 & 4.098 \\ 
-        \hline 
-      \end{tabular}
-      \caption{Aceleração \eqref{acc} obtida para a função $f_1$ \eqref{f1}. }
-      \label{f1a}
-    \end{table}
+  \begin{table}
+    \centering
+    \accfA
+    \end{tabular}
+    \caption{Aceleração \eqref{acc} obtida para a função $f_1$ \eqref{f1}. }
+    \label{f1a}
+  \end{table}
 
-      \begin{table}
-        \centering
-        \begin{tabular}{||c c c c c c c c||}
-          \hline
-          $n$ & seq. & 1 & 2 & 4 & 6 & 8 & 10 \\ 
-          \hline \hline
-          $10^{3}$ & 0.007 & 0.120 & 0.053 & 0.058 & 0.090 & 0.118 & 0.153 \\ 
-          \hline 
-          $10^{4}$ & 0.051 & 0.076 & 0.076 & 0.098 & 0.104 & 0.127 & 0.167 \\ 
-          \hline 
-          $10^{5}$ & 0.518 & 0.622 & 0.385 & 0.474 & 0.269 & 0.280 & 0.247 \\ 
-          \hline 
-          $10^{6}$ & 5.081 & 5.619 & 2.832 & 1.457 & 1.704 & 1.615 & 2.216 \\ 
-          \hline 
-          $10^{7}$ & 50.910 & 54.785 & 28.152 & 13.878 & 16.642 & 12.721 & 15.478 \\ 
-          \hline 
-        \end{tabular}
-        \caption{Tempo de execução, em milissegundos, para a função $f_2$ \eqref{f2}.}
-        \label{f2t}
-      \end{table}
-    
-        \begin{table}
-          \centering
-          \begin{tabular}{||c c c c c c c||}
-            \hline
-            $n$ & 1 & 2 & 4 & 6 & 8 & 10 \\ 
-            \hline \hline
-            $10^{3}$ & 0.058 & 0.132 & 0.120 & 0.078 & 0.059 & 0.046 \\ 
-            \hline 
-            $10^{4}$ & 0.667 & 0.668 & 0.516 & 0.487 & 0.399 & 0.303 \\ 
-            \hline 
-            $10^{5}$ & 0.832 & 1.346 & 1.093 & 1.927 & 1.848 & 2.096 \\ 
-            \hline 
-            $10^{6}$ & 0.904 & 1.794 & 3.488 & 2.982 & 3.146 & 2.293 \\ 
-            \hline 
-            $10^{7}$ & 0.929 & 1.808 & 3.668 & 3.059 & 4.002 & 3.289 \\ 
-            \hline 
-          \end{tabular}
-          \caption{Aceleração \eqref{acc} obtida para a função $f_2$ \eqref{f2}. }
-          \label{f2a}
-        \end{table}
+  \begin{table}
+    \centering
+    \timefB
+    \end{tabular}
+    \caption{Tempo de execução, em milissegundos, para a função $f_2$ \eqref{f2}.}
+    \label{f2t}
+  \end{table}
 
-        \begin{table}
-          \centering
-          \begin{tabular}{||c c c c c c c c||}
-            \hline
-            $n$ & seq. & 1 & 2 & 4 & 6 & 8 & 10 \\ 
-            \hline \hline
-            $10^{3}$ & 0.038 & 0.083 & 0.103 & 0.072 & 0.096 & 0.119 & 0.155 \\ 
-            \hline 
-            $10^{4}$ & 0.194 & 0.254 & 0.173 & 0.124 & 0.136 & 0.162 & 0.196 \\ 
-            \hline 
-            $10^{5}$ & 1.978 & 2.077 & 1.131 & 0.595 & 0.607 & 0.504 & 0.933 \\ 
-            \hline 
-            $10^{6}$ & 19.294 & 19.623 & 10.513 & 6.405 & 5.275 & 4.160 & 5.229 \\ 
-            \hline 
-            $10^{7}$ & 189.129 & 195.436 & 102.354 & 50.718 & 50.176 & 38.592 & 46.291 \\ 
-            \hline 
-          \end{tabular}
-          \caption{Tempo de execução, em milissegundos, para a função $f_3$ \eqref{f3}.}
-          \label{f3t}
-        \end{table}
-      
-        \begin{table}
-          \centering
-          \begin{tabular}{||c c c c c c c||}
-            \hline
-            $n$ & 1 & 2 & 4 & 6 & 8 & 10 \\ 
-            \hline \hline
-            $10^{3}$ & 0.461 & 0.371 & 0.531 & 0.398 & 0.320 & 0.247 \\ 
-            \hline 
-            $10^{4}$ & 0.765 & 1.122 & 1.562 & 1.431 & 1.196 & 0.990 \\ 
-            \hline 
-            $10^{5}$ & 0.952 & 1.749 & 3.324 & 3.256 & 3.927 & 2.121 \\ 
-            \hline 
-            $10^{6}$ & 0.983 & 1.835 & 3.012 & 3.658 & 4.639 & 3.690 \\ 
-            \hline 
-            $10^{7}$ & 0.968 & 1.848 & 3.729 & 3.769 & 4.901 & 4.086 \\ 
-            \hline 
-          \end{tabular}
-          \caption{Aceleração \eqref{acc} obtida para a função $f_3$ \eqref{f3}. }
-          \label{f3a}
-        \end{table}
+  \begin{table}
+    \centering
+    \accfB
+    \end{tabular}
+    \caption{Aceleração \eqref{acc} obtida para a função $f_2$ \eqref{f2}. }
+    \label{f2a}
+  \end{table}
+
+  \begin{table}
+    \centering
+    \timefC 
+    \end{tabular}
+    \caption{Tempo de execução, em milissegundos, para a função $f_3$ \eqref{f3}.}
+    \label{f3t}
+  \end{table}
+
+  \begin{table}
+    \centering
+    \accfC
+    \end{tabular}
+    \caption{Aceleração \eqref{acc} obtida para a função $f_3$ \eqref{f3}. }
+    \label{f3a}
+  \end{table}
 
 \end{document}

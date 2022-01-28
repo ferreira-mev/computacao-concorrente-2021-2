@@ -19,7 +19,7 @@ Paralelização da integração numérica pelo método do trapézio.
 #define N_THREADS_LEN 6
 #define N_SUBS_LEN 5
 #define N_TEST_FOOS 3
-#define N_RUNS 5
+#define N_RUNS 25
 
 int n_threads[N_THREADS_LEN];
 int n_subintervals[N_SUBS_LEN];
@@ -113,14 +113,16 @@ int main(int argc, char *argv[])
         {
             FILE* curr_file = file_ptrs[i];
 
+            char c = 65 + f_idx;  // a, b, c
+
             if (!i)  // time_file (pouco abstrato, mas vá; é C anyway :P)
             {
-                fprintf(curr_file, "\\newcommand{\\f%d_time}{\n", f_idx + 1);
+                fprintf(curr_file, "\\newcommand{\\timef%c}{\n", c);
                 fprintf(curr_file, "\\begin{tabular}{||c c c c c c c c||}\n");
             }
             else
             {
-                fprintf(curr_file, "\\newcommand{\\f%d_acc}{\n", f_idx + 1);
+                fprintf(curr_file, "\\newcommand{\\accf%c}{\n", c);
                 fprintf(curr_file, "\\begin{tabular}{||c c c c c c c||}\n");
             }
 
