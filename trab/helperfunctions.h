@@ -18,6 +18,6 @@ void* safe_malloc(size_t size);
 
 short int compare_doubles(double x, double y, double delta);
 
-char* txt_filename(char* out_dir, char* suffix, int f_id);
+char* tex_filename(char* out_dir, char* suffix, int f_id);
 
 #endif // HELPERFUNCTIONS_H

@@ -94,9 +94,9 @@ int main(int argc, char *argv[])
 
     for (int f_idx = 0; f_idx < N_TEST_FOOS; f_idx++)  // p/ cada função de teste
     {
-        FILE* time_file = fopen(txt_filename(out_dir, "time", f_idx), "w");
+        FILE* time_file = fopen(tex_filename(out_dir, "time", f_idx), "w");
         // txt p/ armazenar medidas de tempo referentes a essa f
-        FILE* acc_file = fopen(txt_filename(out_dir, "acc", f_idx), "w");
+        FILE* acc_file = fopen(tex_filename(out_dir, "acc", f_idx), "w");
         // txt p/ armazenar medidas de aceleração referentes a essa f
 
         if (!time_file || !acc_file)
@@ -115,10 +115,12 @@ int main(int argc, char *argv[])
 
             if (!i)  // time_file (pouco abstrato, mas vá; é C anyway :P)
             {
+                fprintf(curr_file, "\\newcommand{\\f%d_time}{\n", f_idx + 1);
                 fprintf(curr_file, "\\begin{tabular}{||c c c c c c c c||}\n");
             }
             else
             {
+                fprintf(curr_file, "\\newcommand{\\f%d_acc}{\n", f_idx + 1);
                 fprintf(curr_file, "\\begin{tabular}{||c c c c c c c||}\n");
             }
 
@@ -329,6 +331,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 2; i++)
         {
             FILE* curr_file = file_ptrs[i];
+            fprintf(curr_file, "}\n");
             fclose(curr_file);
         }
 
