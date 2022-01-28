@@ -165,7 +165,7 @@
 
   A comparação entre números de ponto flutuante foi feita conforme \cite{float}, adotando um valor de $\delta = 10^{-8}$ como critério de proximidade relativa entre os resultados. Não houve um procedimento rigoroso para determinação do valor ideal de $\delta$, apenas uma consideração do que seria um valor ``razoável'' para verificar a corretude do algoritmo, considerando as precisões do método e da máquina e a experiência de Computação Científica I. 
   
-  Tanto o teste \ref{seq} quanto o \ref{symb} foram executados com sucesso para todas as funções acima, para todas as combinações de números de threads $2k$, $1 \leq k \leq 5$, e números de subintervalos $10^m$, $3 \leq k \leq 7$. Observo que a variação do número $n$ de subintervalos é análoga, para este problema, à variação da dimensão dos dados de entrada, cuja necessidade havia sido apontada nas instruções do trabalho, pois é o valor de $n$ que determina o número de operações a serem realizadas.
+  Tanto o teste \ref{seq} quanto o \ref{symb} foram executados com sucesso para todas as funções acima, para todas as combinações de números de threads $2k$, $1 \leq k \leq 5$, e números de subintervalos $10^m$, $3 \leq k \leq 7$. Observo que a variação do número $n$ de subintervalos é análoga, para este problema, à variação da dimensão dos dados de entrada, cuja necessidade na testagem havia sido apontada nas instruções do trabalho, pois é o valor de $n$ que determina o número de operações a serem realizadas.
 
   \section{Avaliação de desempenho} \label{perf}
 
@@ -202,17 +202,34 @@ Vendor ID:               GenuineIntel
   em termos de tempo de execução, para me aproximar melhor de uma 
   observação real das vantagens ``líquidas''\ oferecidas pela concorrência, descontados seus ``custos''.
 
-  Os resultados estão expostos nas tabelas de \ref{f1t} a \ref{f3a}. Em todas elas, os valores nos cabeçalhos das colunas são os números de threads, e $n$ é o número de subintervalos em que foi dividido o intervalo de integração $[1, 11]$. Nas tabelas com medidas de tempo, a coluna ``seq.'' registra o tempo médio de execução do algoritmo sequencial. Os valores foram arredondados após a terceira casa decimal.
+  Os resultados estão expostos nas tabelas de \ref{f1t} a \ref{f3a}, disponíveis ao final do documento. Em todas elas, os valores nos cabeçalhos das colunas são os números de threads, e $n$ é o número de subintervalos em que foi dividido o intervalo de integração $[1, 11]$. Nas tabelas com medidas de tempo, a coluna ``seq.'' registra o tempo médio de execução do algoritmo sequencial. Os valores foram arredondados após a terceira casa decimal.
 
   \section{Discussão} \label{disc}
 
-  \section{Referências bibliográficas} \label{bibl}
+  Algo que que se pode notar é a diferença entre os tempos absolutos de execução entre as diferentes funções. Minha hipótese seria de que isso se relaciona com a quantidade de operações realizada para cálculo de $f_i(x)$ para cada $1 \leq i \leq 3$. A função $f_1$ \eqref{f1} é um polinômio, e a computação de seus valores envolve diversas multiplicações e adições, o que talvez justifique o porquê de sua execução (tabela \ref{f1t}) ser bem mais lenta do que o que ocorre com $f_2$ \eqref{f2} (tabela \ref{f2t}). Talvez o fato de $f_3$ \eqref{f3} ser intermediária entre as duas (tabela \eqref{f3t}) deva-se à forma como a função cosseno é implementada internamente -- talvez com uma aproximação por séries de Taylor, por exemplo, que também são funções polinomiais. Isso não é diretamente relacionado à concorrência em si, mas estou mencionando esse fato por poder estar relacionado às diferenças entre as acelerações aferidas para cada função.
+
+  Ainda sobre a questão do tempo absoluto, conforme o esperado, esse tempo aumenta com $n$ para todas as funções, já que um aumento na quantidade de subintervalos acarreta numa maior quantidade de pontos onde calcular o valor da função e mais termos a somar.
+
+  De relevância mais direta para a avaliação da paralelização, constata-se, para todas as funções, um ganho de velocidade com a paralelização, a partir de alguma combinação de valores de $n$ e números de threads, que chega a ser bastante expressivo em alguns casos, tendo resultado em tempos de execução mais de quatro vezes menores.
+
+  Na maioria dos casos, o uso de uma única thread leva a uma execução mais lenta, devido ao overhead introduzido por sua criação e "sincronização". Curiosamente, vemos na tabela \ref{f1a} que, apenas no caso da função $f_1$, houve um ganho muito pequeno de velocidade com o uso de uma única thread para $n$ a partir de $10^5$. Acredito que estejamos diante de algum ruído introduzido por diferenças pontuais entre os algoritmos paralelo e sequencial. (Sobre isso, ver o comentário próximo ao final da seção \ref{perf}.)
+  
+  Mais simples de explicar é a diminuição geral dessa desaceleração com o crescimento de $n$, pois, com mais operações, as etapas associadas à criação da única thread representam uma parcela menor do tempo total de processamento e os algoritmos sequencial e "concorrente monothread" se aproximam.
+
+  Relacionado a isso, vê-se que, em todos os casos, a introdução da concorrência -- verdadeira, com duas ou mais threads -- tampouco foi vantajosa para $n$ muito pequeno. Provavelmente, o que ocorre é que, também nesses casos, como a quantidade de operações a ser realizada não é alta, o overhead da paralelização representa uma parcela significativa do tempo efetivo de processamento, de modo a não ser vantajoso.
+
+  Para todas as funções, ao menos para $n \geq 10^5$, a paralelização torna-se vantajosa -- em geral, mais quanto mais cresce $n$ e reduz-se a fração do tempo de processamento representada pelas etapas adicionais introduzidas pela concorrência. Aqui, também, apenas no caso de $f_1$ o comportamento foi um pouco diferente, tendo havido uma aceleração menor quando $n = 10^7$ do que para $n = 10^6$. (Não consegui pensar numa possível justificativa para esse fato até o momento.)
+
+  % aumento com t não foi tão direto, 6 às vezes é menor que 4 (entra no hyperthreading s/ aproveitar ao máximo?)
+  % de 8 p/ 10 na maioria dos casos tb caiu um pouco, porque está passando p/ duas threads que já "não existem", nem virtualmente
+
+  \section{Referências bibliográficas \protect\footnote{Era o título indicado para a sessão nas especificações do trabalho, mas,  rigor, foram usadas apenas referências cibernéticas!}} \label{bibl}
 
   \printbibliography[heading=none]
 
   \newpage
 
-  \begin{table}[h!]
+  \begin{table}
     \centering
     \begin{tabular}{||c c c c c c c c||}
       \hline
@@ -229,11 +246,11 @@ Vendor ID:               GenuineIntel
       $10^{7}$ & 434.588 & 426.563 & 228.206 & 159.970 & 116.615 & 122.036 & 106.057 \\ 
       \hline 
     \end{tabular}
-    \caption{Tempo de execução, em milissegundos, para a função $f_1$.}
+    \caption{Tempo de execução, em milissegundos, para a função $f_1$ \eqref{f1}.}
     \label{f1t}
   \end{table}
 
-    \begin{table}[h!]
+    \begin{table}
       \centering
       \begin{tabular}{||c c c c c c c||}
         \hline
@@ -254,7 +271,7 @@ Vendor ID:               GenuineIntel
       \label{f1a}
     \end{table}
 
-      \begin{table}[h!]
+      \begin{table}
         \centering
         \begin{tabular}{||c c c c c c c c||}
           \hline
@@ -271,11 +288,11 @@ Vendor ID:               GenuineIntel
           $10^{7}$ & 50.910 & 54.785 & 28.152 & 13.878 & 16.642 & 12.721 & 15.478 \\ 
           \hline 
         \end{tabular}
-        \caption{Tempo de execução, em milissegundos, para a função $f_2$.}
+        \caption{Tempo de execução, em milissegundos, para a função $f_2$ \eqref{f2}.}
         \label{f2t}
       \end{table}
     
-        \begin{table}[h!]
+        \begin{table}
           \centering
           \begin{tabular}{||c c c c c c c||}
             \hline
@@ -296,7 +313,7 @@ Vendor ID:               GenuineIntel
           \label{f2a}
         \end{table}
 
-        \begin{table}[h!]
+        \begin{table}
           \centering
           \begin{tabular}{||c c c c c c c c||}
             \hline
@@ -313,11 +330,11 @@ Vendor ID:               GenuineIntel
             $10^{7}$ & 189.129 & 195.436 & 102.354 & 50.718 & 50.176 & 38.592 & 46.291 \\ 
             \hline 
           \end{tabular}
-          \caption{Tempo de execução, em milissegundos, para a função $f_3$.}
+          \caption{Tempo de execução, em milissegundos, para a função $f_3$ \eqref{f3}.}
           \label{f3t}
         \end{table}
       
-        \begin{table}[h!]
+        \begin{table}
           \centering
           \begin{tabular}{||c c c c c c c||}
             \hline
