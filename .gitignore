@@ -1,7 +1,10 @@
 *.pdf
+
+# Extensions related to the compilation of C programs:
 *.exe
 *.o
 *.out
+
 cods-mod1-lab1
 lab01/test_vector.txt
 *.log
