@@ -15,15 +15,15 @@ Adaptado do laboratório 5.
 // (desperdiça um pouquinho de memória, mas nesse caso é mesmo pouco, e
 // simplifica a inicialização do array sentences abaixo)
 
-// #define DEBUG
+#define DEBUG
 
 // Variáveis globais:
 
-int nprints = 0;
-pthread_mutex_t mutex_nprints;
-pthread_cond_t cond_mid;  // thread 0 libera 1, 2, 3
-pthread_cond_t cond_end;  // última de 1, 2, 3 libera 4
-
+sem_t* conds;
+// semáforos "booleanos"/"binários"; a posição i indica se a thread
+// i + 2 já imprimiu (considerando a indexação a partir do 1, como nas
+// instruções do laboratório; ou i + 1, indexando do zero, como fiz 
+// aqui por simplicidade)
 
 char sentences[NTHREADS][MAX_STRLEN] = {
     "Volte sempre!",
@@ -37,7 +37,7 @@ char sentences[NTHREADS][MAX_STRLEN] = {
 
 void* safe_malloc(size_t size);
 
-void* print_sentence(void* p_id);
+void* print_sentence(void* p_id);  // tarefa das threads
 
 int main(int argc, char *argv[])
 {
@@ -49,9 +49,13 @@ int main(int argc, char *argv[])
     int* id_range = (int*) safe_malloc(sizeof(int) * NTHREADS);
 
     // Inicializando vars associadas ao controle de fluxo:
-    pthread_mutex_init(&mutex_nprints, NULL);
-    pthread_cond_init(&cond_mid, NULL);
-    pthread_cond_init(&cond_end, NULL);
+    conds = (sem_t*) safe_malloc(sizeof(sem_t) * (NTHREADS - 1));
+    // a última thread não precisa de condição
+
+    for (int i = 3; i >= 0; i--)
+    {
+        sem_init(conds + i, 0, 0);
+    }
 
     // Preenchendo id_range com os identificadores "internos"
     // das threads:
@@ -82,9 +86,8 @@ int main(int argc, char *argv[])
 
     // Apagando a luz e fechando a porta:
     free(id_range);
-    pthread_mutex_destroy(&mutex_nprints);
-    pthread_cond_destroy(&cond_mid);
-    pthread_cond_destroy(&cond_end);
+
+    // tem algum sem_init^{-1}??
     
     #ifdef DEBUG
     puts("Exiting successfully");
@@ -111,78 +114,48 @@ void* safe_malloc(size_t size)
 }
 
 void* print_sentence(void* p_id)
+/* Tarefa a ser executada pelas threads. */
 {
     int id = *((int*) p_id);
 
     #ifdef DEBUG
-    printf("\nBeginning execution of thread %d; nprints = %d\n", id, nprints);
+    printf("\nBeginning execution of thread %d\n", id);
     #endif
-
-    pthread_mutex_lock(&mutex_nprints);
 
     switch (id)
     {
         case 0:
-            while (nprints < 4)
+            for (int i = 3; i >= 0; i--)
+            // aguardando todas as demais threads
             {
-                #ifdef DEBUG
-                printf("\nThread %d will block itself; nprints = %d\n", id, nprints);
-                #endif
-
-                pthread_cond_wait(&cond_end, &mutex_nprints);
-
-                #ifdef DEBUG
-                printf("\nThread %d received an unlocking signal; nprints = %d\n", id, nprints);
-                #endif
+                sem_wait(conds + i);
             }
 
             printf("%s\n", sentences[id]);
-            nprints++;  // só por consistência, não muda nada :P
-
+            
             break;
         case 1:
         case 2:
         case 3:
-            while (!nprints)
-            {
-                #ifdef DEBUG
-                printf("\nThread %d will block itself; nprints = %d\n", id, nprints);
-                #endif
-
-                pthread_cond_wait(&cond_mid, &mutex_nprints);
-
-                #ifdef DEBUG
-                printf("\nThread %d received an unlocking signal; nprints = %d\n", id, nprints);
-                #endif
-            }
+            sem_wait(conds + 3);  // aguardando a thread 5
 
             printf("%s\n", sentences[id]);
-            nprints++;
 
-            if (nprints == 4)
-            {
-                pthread_cond_signal(&cond_end);
-
-                // Basta signal em vez de broadcast pois só pode haver 
-                // uma thread esperando (a 4)
-            }
+            sem_post(conds + (id - 1));
 
             break;
         case 4:
             printf("%s\n", sentences[id]);
-            nprints++;
 
-            pthread_cond_broadcast(&cond_mid);
+            sem_post(conds + (id - 1));
             break;
         default:
             fprintf(stderr, "Erro - estado invalido");
             exit(EXIT_FAILURE);
     }
 
-    pthread_mutex_unlock(&mutex_nprints);
-
     #ifdef DEBUG
-    printf("\nEnding execution of thread %d; nprints = %d\n", id, nprints);
+    printf("\nEnding execution of thread %d\n", id);
     #endif
     
     pthread_exit(NULL);
