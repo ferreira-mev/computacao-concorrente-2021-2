@@ -87,9 +87,10 @@ int main(int argc, char *argv[])
     // Apagando a luz e fechando a porta:
     free(id_range);
 
-    // Existe alguma "função inversa" de sem_init? Preciso liberar 
-    // ou destruit alguma coisa ao final, como com a 
-    // pthread_cond_destroy ou a pthread_mutex_destroy?
+    for (int i = 3; i >= 0; i--)
+    {
+        sem_close(conds + i);
+    }
     
     #ifdef DEBUG
     puts("Exiting successfully");
