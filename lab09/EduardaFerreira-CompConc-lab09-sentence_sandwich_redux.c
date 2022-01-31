@@ -15,7 +15,7 @@ Adaptado do laboratório 5.
 // (desperdiça um pouquinho de memória, mas nesse caso é mesmo pouco, e
 // simplifica a inicialização do array sentences abaixo)
 
-#define DEBUG
+// #define DEBUG
 
 // Variáveis globais:
 
@@ -87,7 +87,9 @@ int main(int argc, char *argv[])
     // Apagando a luz e fechando a porta:
     free(id_range);
 
-    // tem algum sem_init^{-1}??
+    // Existe alguma "função inversa" de sem_init? Preciso liberar 
+    // ou destruit alguma coisa ao final, como com a 
+    // pthread_cond_destroy ou a pthread_mutex_destroy?
     
     #ifdef DEBUG
     puts("Exiting successfully");
@@ -145,9 +147,20 @@ void* print_sentence(void* p_id)
 
             break;
         case 4:
+            // é a primeira a executar, não precisa aguardar nenhuma condição
+
             printf("%s\n", sentences[id]);
 
-            sem_post(conds + (id - 1));
+            for (int i = 0; i < 4; i++)
+            // aguardando todas as demais threads
+            {
+                sem_post(conds + (id - 1));
+                // precisa haver um sinal disponível para
+                // cada uma das 4 outras threads que espera
+                // pela thread 5
+            }
+
+            
             break;
         default:
             fprintf(stderr, "Erro - estado invalido");
