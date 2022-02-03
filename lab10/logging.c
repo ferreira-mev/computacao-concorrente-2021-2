@@ -45,6 +45,8 @@ Sem <n>cons <n>prod <timestamp>.log
 
     strcat(name, timestamp);
 
+    free(timestamp);
+
     return name;
 }
 
@@ -56,18 +58,23 @@ Imprime identicamente em stdin caso should_print não seja 0.*/
 {
     char* timestamp = get_timestamp();
 
-    if (should_print)
-    {
-        puts(message);
-    }
-
     if (thread_id >= 0)
     {
         fprintf(logfile, "[%s] [%d] %s\n", timestamp, thread_id, message);
+        if (should_print)
+        {
+            printf("[%s] [%d] %s\n", timestamp, thread_id, message);
+        }
     }
     else
     {
         fprintf(logfile, "[%s] [main] %s\n", timestamp, message);
+
+        if (should_print)
+        {
+            printf("[%s] [main] %s\n", timestamp, message);
+        }
     }
 
+    free(timestamp);
 }
