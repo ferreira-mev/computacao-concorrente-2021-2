@@ -20,6 +20,8 @@ Formato de impressão:
 #include "helperfunctions.h"
 
 char* get_timestamp()
+/* Retorna uma timestamp referente ao momento atual idêntica à
+retornada por ctime(), porém sem a quebra de linha final. */
 {
     char* timestamp = (char*) safe_malloc(sizeof(char) * 100);
 
@@ -47,6 +49,10 @@ Sem <n>cons <n>prod <timestamp>.log
 }
 
 void printlog(FILE* logfile, int thread_id, int should_print, char* message)
+/* Imprime message no arquivo logfile, identificada por thread_id.
+Convenciona-se que a thread main tem ID -1.
+
+Imprime identicamente em stdin caso should_print não seja 0.*/
 {
     char* timestamp = get_timestamp();
 
@@ -59,7 +65,7 @@ void printlog(FILE* logfile, int thread_id, int should_print, char* message)
     {
         fprintf(logfile, "[%s] [%d] %s\n", timestamp, thread_id, message);
     }
-    else  // main tem "ID" -1
+    else
     {
         fprintf(logfile, "[%s] [main] %s\n", timestamp, message);
     }
