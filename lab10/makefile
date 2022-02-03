@@ -19,5 +19,8 @@ logging.o: logging.c
 clean:
 	rm $(wildcard *.o) $(wildcard *.exe)
 
+clearlogs:
+	rm logs/*
+
 run: sem_prod_cons.exe  # fixando params só p/ testar
 	./sem_prod_cons.exe 1 1
