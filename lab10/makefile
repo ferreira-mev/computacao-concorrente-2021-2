@@ -24,3 +24,6 @@ clearlogs:
 
 run: sem_prod_cons.exe  # fixando params só p/ testar
 	./sem_prod_cons.exe 1 1
+
+test: sem_prod_cons.exe  # todos os casos de teste pedidos
+	./sem_prod_cons.exe 1 1; ./sem_prod_cons.exe 5 1; ./sem_prod_cons.exe 1 4; ./sem_prod_cons.exe 6 7
