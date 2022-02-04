@@ -2,7 +2,16 @@
 Aluna: Eduarda Ferreira
 Laboratório 10 -- Atividade 1
 
-Problema produtor/consumidor com uso de semáforos.
+Resolução do problema do produtor/consumidor com o uso de semáforos.
+
+O programa recebe dois parâmetros na linha de comando: primeiro o 
+número de threads consumidoras, depois o de produtoras.
+
+Os logs solicitados são armazenados no diretório indicado pelo conteúdo
+inicial da string "filename" (deixe a string vazia para salvar no mesmo diretório; incluí "logs/" como padrão).
+
+Um teste de cada categoria solicitada pode ser executado usando "make 
+test".
 */
 
 #include <pthread.h>
@@ -46,11 +55,11 @@ uma posição escrita ou vazia/inválida poderia não ser tão trivial. */
 
 int read_pos = 0;  // índice de onde o consumidor lê
 /* Não há um índice para o produtor porque, nesta variante do problema,
-ele sempre preenche todas as posições.*/
+ele sempre preenche todas as posições. */
 
 int n_cons, n_prod;
-int cons_iter, prod_iter;
-// número de vezes que cada thread lê ou escreve
+// int cons_iter, prod_iter;
+// // número de vezes que cada thread lê ou escreve
 
 int running_cons = 0;
 /* Se a qtd de posições escritas for menor que a de posições lidas,
@@ -62,8 +71,8 @@ do buffer.
 
 Para evitar a necessidade de que o produto do número de iterações 
 por consumidor pelo número de consumidores seja sempre múltiplo
-do tamanho do buffer vezes o número de produtores (para assegurar o término da execução ajustando o número de iterações por produtor), ou de interromper manualmente a execução do programa, incluí no 
-programa uma contagem regressiva de threads leitoras, para garantir
+do tamanho do buffer vezes o número de produtores (assegurndo o término da execução ajustando o número de iterações por produtor), ou de interromper manualmente a execução do programa, incluí no 
+programa uma contagem regressiva de threads leitoras, que permite que
 que todas as produtoras se encerrem na ausência de consumidoras. */
 
 sem_t mutex_cons;  // binário, p/ impedir que duas threads leiam a
@@ -206,7 +215,7 @@ void* cons_task(void* cons_args)
         printlog(logfile, thread_id, should_print, "Aguardando liberacao para leitura (mutex)");
         sem_wait(&mutex_cons);
         printlog(logfile, thread_id, should_print, "Acesso ao buffer liberado (mutex); verificando se esta vazio");
-        // se estiver vazio, fica presa aqui; não é problema porque
+        // Se estiver vazio, fica presa aqui; não é problema porque
         // o produtor não depende do mutex, já que, se o buffer estiver
         // vazio, o consumidor já não pode estar lendo, e, como 
         // buffer_empty é binário, dois produtores não podem ser
@@ -262,7 +271,7 @@ void* prod_task(void* prod_args)
 
         printlog(logfile, thread_id, should_print, "Buffer vazio! Preenchendo...");
 
-        for (int i=0; i < prod_iter; i++)
+        for (int i=0; i < BUFFER_SIZE; i++)
         {
             buffer[i] = 1;  // preenchendo o buffer
         }
@@ -272,7 +281,7 @@ void* prod_task(void* prod_args)
         for (int i=0; i < BUFFER_SIZE; i++)
         {
             sem_post(&buffer_filled);
-            // loop separado para que os consumidores realmente só
+            // Loop separado para que os consumidores realmente só
             // comecem a ler após todo o buffer ter sido preenchido
             // "de uma vez"
         }
