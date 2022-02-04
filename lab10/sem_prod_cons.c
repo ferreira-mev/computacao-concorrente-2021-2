@@ -15,6 +15,7 @@ Problema produtor/consumidor com uso de semáforos.
 #include "helperfunctions.h"
 
 #define BUFFER_SIZE 5
+#define CONS_ITERS 5  // duas escolhas arbitrárias
 #define DEBUG
 
 // Variáveis globais:
@@ -51,6 +52,20 @@ int n_cons, n_prod;
 int cons_iter, prod_iter;
 // número de vezes que cada thread lê ou escreve
 
+int running_cons = 0;
+/* Se a qtd de posições escritas for menor que a de posições lidas,
+alguma(s) thread(s) consumidora(s) ficará(ão) indefinidamente em 
+starvation, aguardando que o buffer seja preenchido após todos as 
+produtoras terem se encerrado. Se for maior, ocorrerá o oposto, e 
+alguma(s) produtora(s) ficará(ão) presa(s) na espera do esvaziamento
+do buffer.
+
+Para evitar a necessidade de que o produto do número de iterações 
+por consumidor pelo número de consumidores seja sempre múltiplo
+do tamanho do buffer vezes o número de produtores (para assegurar o término da execução ajustando o número de iterações por produtor), ou de interromper manualmente a execução do programa, incluí no 
+programa uma contagem regressiva de threads leitoras, para garantir
+que todas as produtoras se encerrem na ausência de consumidoras. */
+
 sem_t mutex_cons;  // binário, p/ impedir que duas threads leiam a
 // mesma pos ao mesmo tempo
 sem_t buffer_filled;  // contador de posições preenchidas
@@ -78,15 +93,6 @@ int main(int argc, char *argv[])
     
     n_cons = atoi(argv[1]);
     n_prod = atoi(argv[2]);
-
-    // P/ garantir que o programa será executado até o fim, é preciso
-    // que a qtd de posições escritas seja maior ou igual à de posições 
-    // lidas.
-
-    cons_iter = 5;  // escolha arbitrária, só pra não ser muito pra
-    // acompanhar "manualmente"
-
-    prod_iter = ((cons_iter * n_cons) / BUFFER_SIZE) + 1;
 
     int thread_id = -1;  // "ID" da thread main, p/ logs
 
@@ -133,6 +139,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Falha na criacao das threads");
                 return EXIT_FAILURE;
             }
+
+            running_cons++;
         }
         else  // thread produtora
         {
@@ -193,7 +201,7 @@ void* cons_task(void* cons_args)
     int thread_id = *((int*) cons_args);
     printlog(logfile, thread_id, should_print, "Thread criada");
 
-    for (int iter=0; iter < cons_iter; iter++)
+    for (int iter=0; iter < CONS_ITERS; iter++)
     {
         printlog(logfile, thread_id, should_print, "Aguardando liberacao para leitura (mutex)");
         sem_wait(&mutex_cons);
@@ -221,6 +229,21 @@ void* cons_task(void* cons_args)
     }
 
     printlog(logfile, thread_id, should_print, "Thread encerrada");
+    running_cons--;  // uma thread consumidora a menos
+
+    if (!running_cons)
+    {
+        // Se acabaram as threads consumidoras, libera quaisquer
+        // produtoras que possam estar aguardando o esvaziamento
+        // do buffer
+
+        for (int i=0; i < n_prod; i++)
+        {
+            sem_post(&buffer_empty);
+        }
+
+    }
+
     pthread_exit(NULL);
 }
 
@@ -229,10 +252,14 @@ void* prod_task(void* prod_args)
     int thread_id = *((int*) prod_args);
     printlog(logfile, thread_id, should_print, "Thread criada");
 
-    for (int iter=0; iter < prod_iter; iter++)
+    // for (int iter=0; iter < prod_iter; iter++)
+    while (running_cons)
     {
         printlog(logfile, thread_id, should_print, "Aguardando buffer vazio");
         sem_wait(&buffer_empty);
+
+        if (!running_cons) { break; }  // vide comentário em cons_task
+
         printlog(logfile, thread_id, should_print, "Buffer vazio! Preenchendo...");
 
         for (int i=0; i < prod_iter; i++)
@@ -252,6 +279,6 @@ void* prod_task(void* prod_args)
 
     }
 
-    printlog(logfile, thread_id, should_print, "Thread encerrada");
+    printlog(logfile, thread_id, should_print, "Sem mais consumidores; thread encerrada");
     pthread_exit(NULL);
 }
